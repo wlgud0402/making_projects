@@ -5,26 +5,70 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
+    <script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
+    <script src="https://kit.fontawesome.com/c939d0e917.js"></script>
+    <script
+      src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+      integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+      crossorigin="anonymous"
+    ></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0"
+      crossorigin="anonymous"
+    ></script>
+    <style>
+      .main__chat_window {
+        width: 600px;
+        height: 600px;
+        background-color: black;
+        display: flex;
+        flex-direction: column;
+        overflow-y: scroll;
+      }
+      .messages li {
+        color: white;
+        display: block;
+      }
+    </style>
   </head>
   <body>
     <input type="text" id="inputText" />
     <button onclick="sendText()">제출</button>
-    <h1>zzz</h1>
+    <h1>대화방</h1>
+    <div class="main__chat_window">
+      <ul class="messages"></ul>
+    </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.1.1/socket.io.js"></script>
     <script>
-      const $ = document.querySelector.bind(document);
-      const $$ = document.querySelectorAll.bind(document);
       let inputText = $("#inputText");
       const sendText = () => {
-        if (inputText.value.length !== 0) {
-          socket.emit("message", inputText.value);
-          inputText.value = "";
+        if (inputText.val().length !== 0) {
+          socket.emit("message", inputText.val());
+          inputText.val("");
         }
       };
       const socket = io("http://localhost:3000", {
         path: "/abc",
       });
       socket.on("");
+
+      //const scrollToBottom = () => {
+      //let d = $(".main__chat_window");
+      //console.log(d);
+      //d.scrollTop(d.prop("scrollHeight"));
+      //};
+      socket.on("createMessage", (data) => {
+        console.log($(".messages"));
+        $(".messages").append(`<li class="message"><b>user</b>${data}</li>`);
+        //scrollToBottom();
+      });
     </script>
   </body>
 </html>
