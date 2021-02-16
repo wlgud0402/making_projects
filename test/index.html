@@ -23,6 +23,8 @@
       integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0"
       crossorigin="anonymous"
     ></script>
+    <script src="./node_modules/axios/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <style>
       .main__chat_window {
         width: 600px;
@@ -51,6 +53,19 @@
       const sendText = () => {
         if (inputText.val().length !== 0) {
           socket.emit("message", inputText.val());
+
+          axios.post(
+            "http://localhost:8000/api/message",
+            {
+              headers: {
+                contentType: "application/json",
+              },
+            },
+            {
+              message: inputText.val(),
+            }
+          );
+
           inputText.val("");
         }
       };
@@ -65,7 +80,6 @@
       //d.scrollTop(d.prop("scrollHeight"));
       //};
       socket.on("createMessage", (data) => {
-        console.log($(".messages"));
         $(".messages").append(`<li class="message"><b>user</b>${data}</li>`);
         //scrollToBottom();
       });
