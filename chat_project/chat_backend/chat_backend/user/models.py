@@ -1,0 +1,39 @@
+from django.db import models
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+
+
+class UserManager(BaseUserManager):
+    def create_user(self, email, password):
+        if not email:
+            raise ValueError('Users must have an email address')
+
+        user = self.model(
+            email=self.normalize_email(email),
+            password=password,
+        )
+
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, password):
+        user = self.create_user(
+            email,
+            password=password,
+        )
+        user.is_admin = True
+        user.save(using=self._db)
+        return user
+
+
+class User(AbstractBaseUser):
+    email = models.EmailField("이메일", max_length=254, unique=True)
+    password = models.CharField("비밀번호", max_length=100)
+    is_active = models.BooleanField("이메일인증여부", default=False)
+    is_social = models.BooleanField("소셜인증여부", null=True)
+    is_admin = models.BooleanField("관리자여부", default=False)
+    created_at = models.DateTimeField("가입시간", auto_now_add=True)
+
+    objects = UserManager()
+
+    USERNAME_FIELD = 'email'
