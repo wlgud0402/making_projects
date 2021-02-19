@@ -1,9 +1,12 @@
 import React from "react";
 import axios from "axios";
+import GoogleLoginAPI from "./GoogleLoginAPI";
 const { v4: uuidv4 } = require("uuid");
 
 const Test = () => {
   const onSubmit = (e) => {
+    const uuid = uuidv4();
+    console.log(uuid);
     axios.post("/api/chat/", {
       data: "메시지데이터!?!",
     });
@@ -25,6 +28,8 @@ const Test = () => {
       <form onClick={makeRoom}>
         <button>방만들기</button>
       </form>
+
+      <GoogleLoginAPI />
     </div>
   );
 };
