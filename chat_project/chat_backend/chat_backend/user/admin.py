@@ -7,4 +7,4 @@ from .models import User
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
-    list_display = ('email', 'nickname', 'created_at',)
+    list_display = ('email', 'nickname', 'user_type', 'created_at',)

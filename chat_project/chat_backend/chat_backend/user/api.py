@@ -1,31 +1,31 @@
 from rest_framework.views import APIView
 from .models import User
 from .serializers import UserSerializer
-from django.shortcuts import render, HttpResponse
-from rest_framework.response import Response
+from django.http import JsonResponse
+import jwt
+
+# return Response({
+#     "user": UserSerializer(user, context=self.get_serializer_context()).data,
+#     "token": AuthToken.objects.create(user)[1]
+# })
+
+# encoded_jwt = jwt.encode({"some": "payload"}, "secret", algorithm="HS256")
 
 
 class UserAPI(APIView):
-    # if like_serializer.is_valid():
-    #     post = Post.objects.get(id=request.data['post_id'])
-    #     user = User.objects.get(id=request.data['user_id'])
-
     def post(self, request, format=None):
-        print("데이터", request.data['google_id'])
+        # user get_or_create
         user, created = User.objects.get_or_create(
-            google_id=request.data['google_id'])
+            google_id=request.data['google_id'],
+            email=request.data['email'],
+            nickname=request.data['nickname'],
+            user_type=request.data['user_type'])
 
-        created_user = User.objects.get(google_id=request.data['google_id'])
-        return Response(created_user)
-        # user_serializer = UserSerializer(data=request.data['google_id'])
-        # if user_serializer.is_valid():
-        #     print("데이터가 시리얼라이즈에 잘 맞았어!")
-        # else:
-        #     print("시리얼라이즈에 안맞네 시발거")
-        # print("ㅡㅜㅡㅜㅜㅜㅜㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ포스트요청받음")
-        # print("request", request)
-        # user, created = User.objects.get_or_create(
-        #     google_id=request['google_id'])
-        # print(user, created)
-
-        # return HttpResponse("어쩌라고")
+        # jwt token response
+        user_token = jwt.encode(
+            {'user_id': user.id, 'email': user.email,
+                'nickname': user.nickname, 'user_type': user.user_type},
+            "secret", algorithm="HS256")
+        return JsonResponse({
+            'user_token': user_token
+        })
