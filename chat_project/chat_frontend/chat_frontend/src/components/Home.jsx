@@ -1,9 +1,8 @@
 import React, { useState } from "react";
 import Nav from "./Nav";
 import jwt_decode from "jwt-decode";
-// import axios from "axios";
-
 import { useHistory } from "react-router-dom";
+import { v4 as uuidv4 } from "uuid";
 
 const Home = () => {
   let history = useHistory();
@@ -20,7 +19,8 @@ const Home = () => {
       let user_token = localStorage.getItem("user_token");
       let user_info = jwt_decode(user_token);
       if (user_info.user_type === "MEMBER") {
-        console.log("가입된 유저니까 방만들기 가능함");
+        // console.log(uuidv4());
+        history.push("/roomlist");
       } else {
         console.log("가입은 안된 게스트유저");
       }
