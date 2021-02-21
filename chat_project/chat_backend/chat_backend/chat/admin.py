@@ -1,5 +1,7 @@
 from django.contrib import admin
-# from .models import Room, Guest
+from .models import Room
 
-# admin.site.register(Room)
-# admin.site.register(Guest)
+
+@admin.register(Room)
+class RoomAdmin(admin.ModelAdmin):
+    list_display = ('number', 'name', 'status',)

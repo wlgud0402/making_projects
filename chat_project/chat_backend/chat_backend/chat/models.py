@@ -1,26 +1,17 @@
 from django.db import models
-# from django_mysql.models import ListTextField
 
 
-# class Room(models.Model):
-#     room_name = models.CharField("방 이름", max_length=100, default="room_name")
-#     room_uuid = models.CharField(
-#         "방 고유 아이디", max_length=100, default="room_uuid")
-#     # room_users = ListTextField(
-#     #     base_field=models.IntegerField("유저 integer_id"), size=7)
-#     is_active = models.BooleanField(default=True)
+class Room(models.Model):
+    number = models.IntegerField(("방번호"))
+    name = models.CharField(("방이름"), max_length=100, null=True, default="NULL")
+    password = models.CharField(
+        ("방 비밀번호"), max_length=100, null=True, default="NULL")
+    status = models.CharField(
+        ("방 상태"), max_length=30, null=True, default="IDLE")
+    uuid = models.CharField(
+        ("방 uuid"), max_length=254, null=True, default="NULL")
 
-#     def __str__(self):
-#         return "방: " + self.room_name
+    class Meta:
+        ordering = ['number']
 
-
-# class Guest(models.Model):
-#     nickname = models.CharField("게스트 이름", max_length=50, default="nickname")
-#     room_uuid = models.CharField(
-#         "방 고유 아이디", max_length=100, default="room_uuid")
-#     user_uuid = models.CharField(
-#         "게스트 고유 아이디", max_length=100, default="user_uuid")
-#     is_active = models.BooleanField(default=True)
-
-#     def __str__(self):
-#         return "게스트: " + self.nickname
+# Room Serializer
