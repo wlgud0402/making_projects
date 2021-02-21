@@ -1,19 +1,39 @@
-import React from "react";
-import axios from "axios";
+import React, { useState } from "react";
+import Nav from "./Nav";
+import jwt_decode from "jwt-decode";
+// import axios from "axios";
+
+import { useHistory } from "react-router-dom";
 
 const Home = () => {
-  axios.get("http://localhost:8000/user").then(
-    (res) => {
-      console.log(res);
-    },
-    (err) => {
-      console.log(err);
+  let history = useHistory();
+  if (localStorage.getItem("user_token")) {
+    let user_token = localStorage.getItem("user_token");
+    let info = jwt_decode(user_token);
+    console.log("있어!", info);
+  } else {
+    console.log("없어!");
+  }
+  // { user_id : 12, email   : "wlgudrlgus@naver.com", nickname: "wlgudrlgus"}
+  const onClickStartMeeting = (e) => {
+    if (localStorage.getItem("user_token")) {
+      let user_token = localStorage.getItem("user_token");
+      let user_info = jwt_decode(user_token);
+      if (user_info.user_type === "MEMBER") {
+        console.log("가입된 유저니까 방만들기 가능함");
+      } else {
+        console.log("가입은 안된 게스트유저");
+      }
+    } else {
+      alert("방을 시작하려면 로그인이 필요합니다");
     }
-  );
+  };
 
   return (
     <div>
-      <h2>You are not logged in</h2>
+      <Nav />
+      <h2>홈입니다 로그인되있나???</h2>
+      <button onClick={onClickStartMeeting}>미팅시작</button>
     </div>
   );
 };
