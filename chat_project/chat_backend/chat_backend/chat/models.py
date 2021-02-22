@@ -6,6 +6,7 @@ class Room(models.Model):
     name = models.CharField(("방이름"), max_length=100, null=True, default="NULL")
     password = models.CharField(
         ("방 비밀번호"), max_length=100, null=True, default="NULL")
+    is_private = models.BooleanField(("잠금상태"), default=False)
     status = models.CharField(
         ("방 상태"), max_length=30, null=True, default="IDLE")
     uuid = models.CharField(

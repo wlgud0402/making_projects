@@ -54,6 +54,15 @@ from rest_framework import status
 
 class RoomAPI(APIView):
     def get(self, request):
+        if request.query_params.get('id'):
+            id = request.query_params.get('id')
+            room = Room.objects.get(id=id)
+            if room.is_private:
+                return JsonResponse({"is_private": room.is_private})
+            else:
+                return JsonResponse({'uuid': room.uuid})
+
+        # query로 받은 id가 없을경우 모든 room을 가져온다.
         serializer = RoomSerializer(Room.objects.all(), many=True)
         return Response(serializer.data)
 
@@ -71,12 +80,23 @@ class RoomAPI(APIView):
             return Response(room_serializer.data.get("uuid"))
         return JsonResponse(room_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    # def post(self, request):
-    #     serializer = PostSerializer(data=request.data)
-    #     if serializer.is_valid():
-    #       	serializer.save()
-    #         return Response(serializer.data, status=201)
-    #     return Response(serializer.errors, status=400)
+    def post(self, request):
+        if request.data.get('password'):
+            user_sent_password = request.data.get('password')
+            id = request.data['id']
+            room = Room.objects.get(id=id)
+            room_password = room.password
+
+            if user_sent_password == room_password:
+                return JsonResponse({'uuid': room.uuid})
+            else:
+                return JsonResponse({"msg": "비밀번호가 잘못되었습니다."})
+
+        # serializer = PostSerializer(data=request.data)
+        # if serializer.is_valid():
+        #   	serializer.save()
+        #     return Response(serializer.data, status=201)
+        # return Response(serializer.errors, status=400)
 
     #     serializer_class = LikeSerializer
     # queryset = Like.objects.all()

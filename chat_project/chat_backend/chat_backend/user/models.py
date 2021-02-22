@@ -40,11 +40,15 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 
 
 class User(models.Model):
-    google_id = models.CharField(("구글로그인 아이디"), max_length=254)
-    email = models.EmailField(("사용자 이메일"), max_length=254, unique=True)
+    google_id = models.CharField(
+        ("구글로그인 아이디"), max_length=254, null=True, default="default")
+    email = models.EmailField(
+        ("사용자 이메일"), max_length=254, null=True, default="default@naver.com")
     nickname = models.CharField(("닉네임"), max_length=50)
-    peer_id = models.CharField(("피어 id"), max_length=254, null=True)
-    user_type = models.CharField(("유저타입"), max_length=50, null=True)
+    peer_id = models.CharField(
+        ("피어 id"), max_length=254, null=True, default="default")
+    user_type = models.CharField(
+        ("유저타입"), max_length=50, null=True, default="GUEST")
     room_id = models.IntegerField(("방번호"), null=True)
     created_at = models.DateTimeField(("가입일"), auto_now_add=True)
 
@@ -52,4 +56,4 @@ class User(models.Model):
         return self.nickname
 
     class Meta:
-        ordering = ['-created_at']
+        ordering = ['-user_type']
