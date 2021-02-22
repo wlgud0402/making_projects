@@ -5,6 +5,8 @@ import { useHistory } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 
 const Home = () => {
+  // const [userInfo, setUserInfo] = useState("");
+
   let history = useHistory();
   if (localStorage.getItem("user_token")) {
     let user_token = localStorage.getItem("user_token");

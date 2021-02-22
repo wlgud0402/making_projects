@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import React from "react";
 import Peer from "peerjs";
+import axios from "axios";
 // peerjs --port 3001 => 새로운 터미널에서 peerjs를 키고 여기서 거기로 붙는다
 const TestPeer = () => {
   const [pips, setPips] = useState([]);

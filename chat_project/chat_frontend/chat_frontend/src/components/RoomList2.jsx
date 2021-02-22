@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from "uuid";
 import { useHistory } from "react-router-dom";
 import { Link } from "react-router-dom";
 
-const RoomList = () => {
+const RoomList2 = () => {
   let history = useHistory();
   const [roomList, setRoomList] = useState([]);
   useEffect(() => {
@@ -16,13 +16,6 @@ const RoomList = () => {
     })();
   }, []);
 
-  {
-    /* <button onClick={() => {history.push({
-  pathname: "/set_account",
-  state: {userCell: userCell}
-})}} /> */
-  }
-
   const onClickMakeRoom = async (e) => {
     const room_name = prompt("방 제목을 입력해주세요.");
     let room_uuid = uuidv4();
@@ -32,8 +25,11 @@ const RoomList = () => {
       number: e.target.id,
       status: "ACTIVE",
     });
-    // history.push(`room/${room_uuid}`, { pass: "pass" });
-    history.push({ pathname: `room/${room_uuid}`, state: { pasS: "pass" } });
+
+    history.push({
+      pathname: `room2/${room_uuid}`,
+      state: { uuid: res.data.room_uuid },
+    });
   };
 
   const onClickIntoRoom = async (e) => {
@@ -106,4 +102,4 @@ const RoomList = () => {
   );
 };
 
-export default RoomList;
+export default RoomList2;
