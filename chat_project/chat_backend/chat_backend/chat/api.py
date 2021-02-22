@@ -1,6 +1,6 @@
 from rest_framework.views import APIView
 from .models import Room
-from .serializers import RoomSerializer
+from .serializers import RoomSerializer, GetRoomSerializer
 from django.http import JsonResponse
 from rest_framework.response import Response
 import jwt
@@ -63,21 +63,19 @@ class RoomAPI(APIView):
                 return JsonResponse({'uuid': room.uuid})
 
         # query로 받은 id가 없을경우 모든 room을 가져온다.
-        serializer = RoomSerializer(Room.objects.all(), many=True)
+        serializer = GetRoomSerializer(Room.objects.all(), many=True)
         return Response(serializer.data)
 
     def put(self, request, format=None):
         number = request.data['number']
         uuid = request.data['uuid']
+        print(uuid)
         room = Room.objects.get(id=number)
-        print("ㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜ퓻요청은 들어옴")
-        print(request.data)
         room_serializer = RoomSerializer(room, data=request.data)
 
         if room_serializer.is_valid():
             room_serializer.save()
-            print(room_serializer.data.get("uuid"))
-            return Response(room_serializer.data.get("uuid"))
+            return JsonResponse({"room_uuid": uuid})
         return JsonResponse(room_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def post(self, request):
@@ -92,11 +90,20 @@ class RoomAPI(APIView):
             else:
                 return JsonResponse({"msg": "비밀번호가 잘못되었습니다."})
 
-        # serializer = PostSerializer(data=request.data)
-        # if serializer.is_valid():
-        #   	serializer.save()
-        #     return Response(serializer.data, status=201)
-        # return Response(serializer.errors, status=400)
+
+class GetRoomAPI(APIView):
+    def get(self, request):
+        if request.query_params.get('uuid'):
+            room_uuid = request.query_params.get('uuid')
+            room = Room.objects.get(uuid=room_uuid)
+            return JsonResponse({"room_id": room.id})
+        return JsonResponse({'msg': "there is no uuid"})
+
+    # serializer = PostSerializer(data=request.data)
+    # if serializer.is_valid():
+    #   	serializer.save()
+    #     return Response(serializer.data, status=201)
+    # return Response(serializer.errors, status=400)
 
     #     serializer_class = LikeSerializer
     # queryset = Like.objects.all()

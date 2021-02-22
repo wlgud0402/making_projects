@@ -29,3 +29,17 @@ class UserAPI(APIView):
         return JsonResponse({
             'user_token': user_token
         })
+
+
+class UserPeerAPI(APIView):
+    def post(self, request, format=None):
+        user_id = request.data['user_id']
+        peer_id = request.data['peer_id']
+        room_id = request.data['room_id']
+        user = User.objects.get(id=user_id)
+        user.peer_id = peer_id
+        user.room_id = room_id
+
+        user.save()
+
+        return JsonResponse({"H": "H"})
