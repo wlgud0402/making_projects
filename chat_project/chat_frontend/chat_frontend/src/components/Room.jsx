@@ -1,10 +1,10 @@
 import React from "react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import Peer from "peerjs";
 
 const Room = (props) => {
   // peerjs --port 3001 => 새로운 터미널에서 peerjs를 키고 여기서 거기로 붙는다
-  const [pips, setPips] = useState([]);
+  // const [pips, setPips] = useState([]);
   console.log(props);
 
   useEffect(() => {

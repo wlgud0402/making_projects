@@ -3,7 +3,6 @@ import axios from "axios";
 import { Card } from "react-bootstrap";
 import { v4 as uuidv4 } from "uuid";
 import { useHistory } from "react-router-dom";
-import { Link } from "react-router-dom";
 
 const RoomList = () => {
   let history = useHistory();
@@ -15,13 +14,6 @@ const RoomList = () => {
       console.log(res.data);
     })();
   }, []);
-
-  {
-    /* <button onClick={() => {history.push({
-  pathname: "/set_account",
-  state: {userCell: userCell}
-})}} /> */
-  }
 
   const onClickMakeRoom = async (e) => {
     const room_name = prompt("방 제목을 입력해주세요.");

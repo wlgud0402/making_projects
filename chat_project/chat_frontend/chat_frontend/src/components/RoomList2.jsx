@@ -3,7 +3,6 @@ import axios from "axios";
 import { Card } from "react-bootstrap";
 import { v4 as uuidv4 } from "uuid";
 import { useHistory } from "react-router-dom";
-import { Link } from "react-router-dom";
 
 const RoomList2 = () => {
   let history = useHistory();
@@ -47,41 +46,57 @@ const RoomList2 = () => {
         { password: room_password, id: e.target.id }
       );
       if (check_res.data.uuid) {
-        history.push(`room/${check_res.data.uuid}`);
+        history.push(`/room2/${check_res.data.uuid}`);
       } else {
-        alert(check_res.data.msg);
+        alert(check_res.data.msg); //잘못된 비밀번호
         return;
       }
 
       //방이 공개방이라면
     } else {
       console.log("공개방", res.data.uuid);
-      history.push(`room/${res.data.uuid}`);
+      history.push(`/room2/${res.data.uuid}`);
     }
   };
 
   const renderRoom = (room) => {
-    return (
-      <Card
-        key={room.number}
-        border="dark"
-        style={{ width: "18rem" }}
-        className="box"
-      >
-        <Card.Header>{room.number}번방</Card.Header>
-        <Card.Body>
-          <Card.Title>방제목: {room.name}</Card.Title>
-          <button id={room.number} onClick={onClickMakeRoom}>
-            만들기
-          </button>
-          {/* history.push(`room/${res.data}`); */}
-          {/* <Link to=`/room/${room.uuid}`>들어가기</Link> */}
-          <button id={room.number} onClick={onClickIntoRoom}>
-            들어가기
-          </button>
-        </Card.Body>
-      </Card>
-    );
+    if (room.status === "ACTIVE") {
+      return (
+        <Card
+          key={room.number}
+          border="dark"
+          style={{ width: "18rem" }}
+          className="box"
+        >
+          <Card.Header>{room.number}번방</Card.Header>
+          <Card.Body>
+            <Card.Title>방제목: {room.name}</Card.Title>
+            <button id={room.number} onClick={onClickIntoRoom}>
+              들어가기
+            </button>
+          </Card.Body>
+        </Card>
+      );
+    } else {
+      return (
+        <Card
+          key={room.number}
+          border="dark"
+          style={{ width: "18rem" }}
+          className="box"
+        >
+          <Card.Header>{room.number}번방</Card.Header>
+          <Card.Body>
+            <Card.Title>방제목: {room.name}</Card.Title>
+            <button id={room.number} onClick={onClickMakeRoom}>
+              만들기
+            </button>
+          </Card.Body>
+        </Card>
+      );
+    }
+    // return (
+    // );
   };
 
   return (

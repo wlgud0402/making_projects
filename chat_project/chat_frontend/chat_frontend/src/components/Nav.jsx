@@ -1,7 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import GoogleLoginAPI from "./GoogleLoginAPI";
-import jwt_decode from "jwt-decode";
 
 const Nav = () => {
   // let user_token = localStorage.getItem("user_token");

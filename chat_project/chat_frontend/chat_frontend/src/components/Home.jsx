@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import Nav from "./Nav";
 import jwt_decode from "jwt-decode";
 import { useHistory } from "react-router-dom";
-import { v4 as uuidv4 } from "uuid";
 
 const Home = () => {
   // const [userInfo, setUserInfo] = useState("");
@@ -22,9 +21,9 @@ const Home = () => {
       let user_info = jwt_decode(user_token);
       if (user_info.user_type === "MEMBER") {
         // console.log(uuidv4());
-        history.push("/roomlist");
+        history.push("/roomlist2");
       } else {
-        console.log("가입은 안된 게스트유저");
+        alert("방을 만드려면 가입이 필요합니다.");
       }
     } else {
       alert("방을 시작하려면 로그인이 필요합니다");
