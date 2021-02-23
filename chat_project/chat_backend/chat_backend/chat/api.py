@@ -60,6 +60,7 @@ class RoomAPI(APIView):
             if room.is_private:
                 return JsonResponse({"is_private": room.is_private})
             else:
+                print("공개방이기때문에 바로 uuid전달해줌!!!!!!!!!!!!!!!!!")
                 return JsonResponse({'uuid': room.uuid})
 
         # query로 받은 id가 없을경우 모든 room을 가져온다.
@@ -78,6 +79,7 @@ class RoomAPI(APIView):
             return JsonResponse({"room_uuid": uuid})
         return JsonResponse(room_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    # 방에 들어가기 => 비밀번호가 있다면 입력해야지!
     def post(self, request):
         if request.data.get('password'):
             user_sent_password = request.data.get('password')
@@ -89,14 +91,20 @@ class RoomAPI(APIView):
                 return JsonResponse({'uuid': room.uuid})
             else:
                 return JsonResponse({"msg": "비밀번호가 잘못되었습니다."})
+        else:
+            print("post요청 api/chat/room 에 엘스문")
+            pass
 
 
 class GetRoomAPI(APIView):
     def get(self, request):
         if request.query_params.get('uuid'):
             room_uuid = request.query_params.get('uuid')
-            room = Room.objects.get(uuid=room_uuid)
-            return JsonResponse({"room_id": room.id})
+            try:
+                room = Room.objects.get(uuid=room_uuid)
+                return JsonResponse({"room_id": room.id})
+            except:
+                return JsonResponse({"msg": "there is no room"})
         return JsonResponse({'msg': "there is no uuid"})
 
     # serializer = PostSerializer(data=request.data)

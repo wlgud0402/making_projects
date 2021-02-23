@@ -7,3 +7,9 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('google_id', 'email', 'nickname',)
+
+
+class UserPeerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('peer_id',)

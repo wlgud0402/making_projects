@@ -50,6 +50,8 @@ class User(models.Model):
     user_type = models.CharField(
         ("유저타입"), max_length=50, null=True, default="GUEST")
     room_id = models.IntegerField(("방번호"), null=True)
+    room_uuid = models.CharField(
+        ("방 uuid"), max_length=254, null=True, default="NULL")
     created_at = models.DateTimeField(("가입일"), auto_now_add=True)
 
     def __str__(self):

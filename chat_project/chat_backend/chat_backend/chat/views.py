@@ -19,10 +19,9 @@ def message(message):
 def getMessage(request):
     if request.method == 'POST':
         print("메세지 받았어ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ")
-
-        body_unicode = request.body.decode('utf-8')
-        data = json.loads(body_unicode)['message']
-        roomId = json.loads(body_unicode)['roomId']
+        message = request.data['message']
+        room_id = request.data['room_id']
+        nickname = request.data['nickname']
 
         r = redis.Redis(host='localhost', port=6379, db=0)
 
@@ -30,9 +29,9 @@ def getMessage(request):
         # roomId = user.roomId;
 
         r.publish('my-chat', json.dumps({
-            'roomId': roomId,
-            "nickname": "dollie",
-            "msg": data,
+            'room_id': room_id,
+            "nickname": nickname,
+            "msg": message,
         }))
 
         return HttpResponse("잘되써")
