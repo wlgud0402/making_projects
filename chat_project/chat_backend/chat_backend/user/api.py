@@ -30,6 +30,18 @@ class UserAPI(APIView):
             'user_token': user_token
         })
 
+    def get(self, request):
+        # 다른사람 peer id를통해 받는정보 다른사람의 정보를 가져오기 위함\
+        # nickname, usertype
+        if request.query_params.get('peer_id'):
+            print("ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ", request.query_params.get('peer_id'))
+            peer_id = request.query_params.get('peer_id')
+            user = User.objects.get(peer_id=peer_id)
+            return JsonResponse({"nickname": user.nickname,
+                                 "user_type": user.user_type})
+        else:
+            return JsonResponse({'msg': "query_params 없이 get요청"})
+
 
 class GuestUserAPI(APIView):
     def post(self, request, format=None):
