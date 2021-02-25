@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Nav from "./Nav";
 import jwt_decode from "jwt-decode";
 import { useHistory } from "react-router-dom";
+import Header from "./Header";
 
 const Home = () => {
   // const [userInfo, setUserInfo] = useState("");
@@ -32,8 +33,8 @@ const Home = () => {
 
   return (
     <div>
+      <Header />
       <Nav />
-      <h2>홈입니다 로그인되있나???</h2>
       <button onClick={onClickStartMeeting}>미팅시작</button>
     </div>
   );

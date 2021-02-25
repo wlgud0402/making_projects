@@ -8,7 +8,6 @@ const Nav = () => {
   return (
     <div>
       <div className="navbar">
-        <h5>BroadMeeting</h5>
         <GoogleLoginAPI />
         <Link to={"/login"} className="nav-link">
           로그인

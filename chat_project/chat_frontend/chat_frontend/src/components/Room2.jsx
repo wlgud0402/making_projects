@@ -1,20 +1,23 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Peer from "peerjs";
 import axios from "axios";
 import jwt_decode from "jwt-decode";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import ShowVideo from "./ShowVideo";
-
+import io from "socket.io-client";
+import { RedisClient } from "redis";
 const receivedPeerIds = new Set();
+////////////////////////////////
+let socket;
+const Room2 = ({ location }) => {
+  const ENDPOINT = "http://localhost:5000";
 
-const Room2 = (props) => {
+  const [roomNumber, setRoomNumber] = useState("");
   const [localPip, setLocalPip] = useState([]);
-
   const [pips, setPips] = useState([]);
   const onCopyToClipboard = (e) => {
     alert("초대주소가 클립보드에 저장되었습니다.");
   };
-
   let uuid = document.location.href.split("/room2/")[1];
   useEffect(() => {
     (async () => {
@@ -23,11 +26,20 @@ const Room2 = (props) => {
         port: "3001",
         path: "/",
       });
+      // var socket = io('http://localhost:5000', { transport : ['websocket'] });
+      socket = io(ENDPOINT, {
+        transports: ["websocket", "polling", "flashsocket"],
+      });
+      // socket = io(ENDPOINT);
+      console.log(socket);
       peer.on("open", async () => {
-        console.log("peer.on 'OPEN 실행!' => peer.id", peer.id);
         const room_data = await axios.get(
           `http://localhost:8000/api/chat/getroom/?uuid=${uuid}`
         );
+        setRoomNumber(room_data.data.room_id);
+
+        //방에 들어왔다는것을 의미합니다. => 방번호를 보냅니다.
+        socket.emit("join-room", room_data.data.room_id);
 
         if (localStorage.getItem("user_token")) {
           let user_token = localStorage.getItem("user_token");
@@ -83,12 +95,11 @@ const Room2 = (props) => {
 
         //다른유저가 보낸 콜을 받을시에
         peer.on("call", function (call) {
-          console.log("call그자체", call);
+          // console.log("그자체", call);
           console.log(
             "call을 받았다!!! 나도 뭔가를 전해주자 myStream",
             myStream
           );
-          ///////////////////////
           call.on("stream", async (otherStream) => {
             console.log("스트림받음call.on otherstream", otherStream, call);
             console.log("call.peer: 연락을 받은 유저의 peer", call.peer);
@@ -155,17 +166,44 @@ const Room2 = (props) => {
         });
       });
     })();
-  }, []);
-  console.log("localPip =>>>>", localPip);
+  }, [ENDPOINT, location.search]);
+
+  //메시지 관련
+  const textMessageRef = useRef();
+  const [textMessage, setTextMessage] = useState("");
+
+  const onSubmitMessage = async (e) => {
+    e.preventDefault();
+    axios.post("http://localhost:8000/api/chat/getmessage/", {
+      message: textMessage,
+      nickname: localPip.nickname,
+      room_id: roomNumber,
+    });
+    setTextMessage("");
+    textMessageRef.current.value = "";
+  };
+
+  const onChangeTextMessage = (e) => {
+    setTextMessage(e.target.value);
+  };
 
   return (
     <div>
       <h1>Room2.jsx</h1>
-      {/* <div>
+      <div>
         <CopyToClipboard text={document.location.href}>
           <button onClick={onCopyToClipboard}>초대</button>
         </CopyToClipboard>
-      </div> */}
+        <form onSubmit={onSubmitMessage}>
+          <input
+            type="text"
+            name="textMessage"
+            onChange={onChangeTextMessage}
+            ref={textMessageRef}
+          />
+          <button type="submit">제출</button>
+        </form>
+      </div>
       {/* 나만 보여주기 */}
       <ShowVideo key={localPip.peer_id} pip={localPip} />
       {/* 다른사람도 보여주느곳ㄴ */}
@@ -191,20 +229,3 @@ export default Room2;
 //     console.error("Failed to get local stream", err);
 //   }
 // );
-
-// const video = document.createElement("video");
-// video.srcObject = otherStream;
-// video.muted = true;
-// video.addEventListener("loadedmetadata", () => {
-//   video.play();
-// });
-// videoGrid.append(video);
-// console.log(pips);
-
-// const addVideoStream = (video, stream) => {
-//   video.srcObject = stream;
-//   video.addEventListener("loadedmetadata", () => {
-//     video.play();
-//   });
-//   videoGrid.append(video);
-// };
