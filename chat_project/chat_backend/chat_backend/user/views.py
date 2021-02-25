@@ -3,6 +3,7 @@ from rest_framework.views import APIView
 import redis_server
 import redis
 import json
+from .models import User
 
 
 def index(request):
@@ -29,6 +30,27 @@ def getMessage(request):
             "nickname": nickname,
             "msg": data,
         }))
+
+        return HttpResponse("잘되써")
+    else:
+        return HttpResponse("POST로 오지 않음")
+
+
+def disconnected(request):
+    if request.method == 'POST':
+        print("ㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜ,")
+        data = request.body.decode('utf-8')
+        peer_id = json.loads(data)['peer_id']
+        room_id = json.loads(data)['room_id']
+
+        disconnected_user = User.objects.filter(
+            room_id=room_id).get(peer_id=peer_id)
+
+        print("연결끊은유저: ", disconnected_user)
+        disconnected_user.room_id = 0
+        disconnected_user.room_uuid = "NULL"
+        disconnected_user.peer_id = "default"
+        disconnected_user.save()
 
         return HttpResponse("잘되써")
     else:

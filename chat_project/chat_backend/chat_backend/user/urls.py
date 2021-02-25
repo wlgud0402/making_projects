@@ -2,7 +2,7 @@ from django.urls import path
 from .views import index, hello
 from .api import UserAPI, UserPeerAPI, GuestUserAPI, GetUserPeerAPI
 from rest_framework import generics
-from .views import getMessage
+from .views import getMessage, disconnected
 
 
 urlpatterns = [
@@ -13,4 +13,5 @@ urlpatterns = [
     path('peer/guest', GuestUserAPI.as_view(), name='guest_user'),
     path('hello/', hello, name='hello'),
     path('getMessage/', getMessage, name='getMessage'),
+    path('disconnected/', disconnected, name='disconnected'),
 ]
