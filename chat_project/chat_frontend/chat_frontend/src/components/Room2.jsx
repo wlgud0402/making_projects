@@ -6,6 +6,7 @@ import { CopyToClipboard } from "react-copy-to-clipboard";
 import ShowVideo from "./ShowVideo";
 import io from "socket.io-client";
 import { RedisClient } from "redis";
+import ShowLocalVideo from "./ShowLocalVideo";
 const receivedPeerIds = new Set();
 ////////////////////////////////
 let socket;
@@ -19,6 +20,8 @@ const Room2 = ({ location }) => {
     alert("초대주소가 클립보드에 저장되었습니다.");
   };
   let uuid = document.location.href.split("/room2/")[1];
+  const [disconnectedUser, setDisconnectedUser] = useState("");
+
   useEffect(() => {
     (async () => {
       const peer = new Peer(undefined, {
@@ -31,7 +34,7 @@ const Room2 = ({ location }) => {
         transports: ["websocket", "polling", "flashsocket"],
       });
       // socket = io(ENDPOINT);
-      console.log(socket);
+      // console.log(socket);
       peer.on("open", async () => {
         const room_data = await axios.get(
           `http://localhost:8000/api/chat/getroom/?uuid=${uuid}`
@@ -39,7 +42,38 @@ const Room2 = ({ location }) => {
         setRoomNumber(room_data.data.room_id);
 
         //방에 들어왔다는것을 의미합니다. => 방번호를 보냅니다.
-        socket.emit("join-room", room_data.data.room_id);
+        socket.emit("join-room", room_data.data.room_id, peer.id);
+
+        socket.on("createMessage", (jsonData) => {
+          if (jsonData.peer_id !== peer.id) {
+            console.log(
+              "index.js에서 socket.emit이 발생 jsonData를 받아옴",
+              jsonData.nickname,
+              jsonData.message
+            );
+          }
+        });
+
+        ////////////여기 할차례 => index.js에서 발생시킨 user-had-left
+        //가 일어나면 여기서 로직을 실행함
+        //pips의 pip와 전부 비교해서 pip.peer_id 가 내가 받은
+        //peer_id와 같을경우 삭제하려고 했지만 pips가 빈배열로 나온다 ㅠ
+        socket.on("user-had-left", (room_id, peer_id) => {
+          setDisconnectedUser(peer_id);
+          console.log(room_id, "번방의", peer_id, "가 나갔어욤");
+          console.log(pips);
+          pips.forEach((pip) => {
+            console.log("한개의 pipㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ", pip);
+          });
+          // setPips((pips) => {
+          //   const newPips = [...pips, pip];
+          //   return newPips;
+          // });
+        });
+
+        socket.on("user-disconnected", () => {
+          console.log("연결이 끊킨 socket: ", socket);
+        });
 
         if (localStorage.getItem("user_token")) {
           let user_token = localStorage.getItem("user_token");
@@ -79,7 +113,7 @@ const Room2 = ({ location }) => {
           video: true,
           audio: true,
         });
-        myStream.muted = true;
+        // myStream.muted = true;
 
         let user_token = localStorage.getItem("user_token");
         let info = jwt_decode(user_token);
@@ -166,7 +200,7 @@ const Room2 = ({ location }) => {
         });
       });
     })();
-  }, [ENDPOINT, location.search]);
+  }, [disconnectedUser]);
 
   //메시지 관련
   const textMessageRef = useRef();
@@ -178,6 +212,7 @@ const Room2 = ({ location }) => {
       message: textMessage,
       nickname: localPip.nickname,
       room_id: roomNumber,
+      peer_id: localPip.peer_id,
     });
     setTextMessage("");
     textMessageRef.current.value = "";
@@ -205,10 +240,11 @@ const Room2 = ({ location }) => {
         </form>
       </div>
       {/* 나만 보여주기 */}
-      <ShowVideo key={localPip.peer_id} pip={localPip} />
+      <ShowLocalVideo key={localPip.peer_id} pip={localPip} />
       {/* 다른사람도 보여주느곳ㄴ */}
       {pips.map((pip) => {
         if (localPip.peer_id === pip.peer_id) return;
+        if (pip.peer_id === disconnectedUser) return;
         return <ShowVideo key={pip.peer_id} pip={pip} />;
       })}
     </div>

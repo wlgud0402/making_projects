@@ -7,7 +7,8 @@ const ShowVideo = (pip) => {
   useEffect(() => {
     // pip.pip.stream.getTracks().forEach((track) => track.stop());
     videoRef.current.srcObject = pip.pip.stream;
-    videoRef.current.muted = true;
+    console.log("다른사람 비디오스트림", videoRef.current.srcObject);
+    // videoRef.current.muted = true;
   }, [pip.pip.stream]);
   return (
     <div>

@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from "react";
-import jwt_decode from "jwt-decode";
 import "./ShowVideo.css";
 
 const ShowLocalVideo = (pip) => {
@@ -7,6 +6,7 @@ const ShowLocalVideo = (pip) => {
   useEffect(() => {
     videoRef.current.srcObject = pip.pip.stream;
     videoRef.current.muted = true;
+    console.log("내비디오 스트림", videoRef.current.srcObject);
   }, [pip.pip.stream]);
   return (
     <div>

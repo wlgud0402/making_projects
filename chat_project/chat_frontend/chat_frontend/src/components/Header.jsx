@@ -1,5 +1,7 @@
 import { Link, useHistory } from "react-router-dom";
 import styled from "styled-components";
+import axios from "axios";
+import jwt_decode from "jwt-decode";
 
 const Header = () => {
   const history = useHistory();
@@ -10,6 +12,22 @@ const Header = () => {
     e.stopPropagation();
     // app.toggleProfileDropdown();
   };
+  const onLogout = (e) => {
+    localStorage.clear();
+  };
+
+  const onChangeNickname = async (e) => {
+    if (localStorage.getItem("user_token")) {
+      let user_token = localStorage.getItem("user_token");
+      let info = jwt_decode(user_token);
+      console.log(info);
+      const new_nickname = prompt("새로운 닉네임을 입력해주세요.");
+    }
+
+    // const new_user_token = await axios.put("http://localhost:8000/api/user/changeUserNickname/",{
+
+    // })
+  };
 
   return (
     <Wrapper>
@@ -19,8 +37,8 @@ const Header = () => {
         </LogoContainer>
         {/* <User /> */}
         <Dropdown>
-          <DropdownItem>닉네임 변경</DropdownItem>
-          <DropdownItem>로그아웃</DropdownItem>
+          <DropdownItem onClick={onChangeNickname}>닉네임 변경</DropdownItem>
+          <DropdownItem onClick={onLogout}>로그아웃</DropdownItem>
         </Dropdown>
       </Contents>
     </Wrapper>
