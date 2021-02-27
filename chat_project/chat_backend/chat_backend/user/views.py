@@ -31,13 +31,13 @@ def getMessage(request):
         print("메세지 받았어ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ")
         body_unicode = request.body.decode('utf-8')
         data = json.loads(body_unicode)['message']
-        roomId = json.loads(body_unicode)['roomId']
+        room_id = json.loads(body_unicode)['room_id']
         nickname = json.loads(body_unicode)['nickname']
 
         r = redis.Redis(host='localhost', port=6379, db=0)
 
         r.publish('my-chat', json.dumps({
-            'roomId': roomId,
+            'room_id': room_id,
             "nickname": nickname,
             "msg": data,
         }))
@@ -69,6 +69,7 @@ def disconnected(request):
             print("방안에 남아있는 유저의 수 ", room_user_count)
             if room_user_count <= 0:
                 room.status = "CLEANING"
+                room.save()
 
                 # 방안에 유저가 한명도 없다면 방상태를 CLEANING으로 바꿔주고 room-refresh실행
                 r = redis.Redis(host='localhost', port=6379, db=0)
@@ -76,6 +77,7 @@ def disconnected(request):
                     'room_id': room_id,
                 }))
 
+                print("스케줄링 시작")
                 roomScheduler.scheduleRemove(room_id)
 
             return HttpResponse()

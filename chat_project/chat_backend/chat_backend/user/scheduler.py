@@ -9,6 +9,7 @@ def db_remove(room_id):
     room = Room.objects.get(id=room_id)
     room.name = "NULL"
     room.status = "IDLE"
+    room.uuid = "NULL"
     room.password = "NULL"
     is_private = False
     room.save()
@@ -20,8 +21,8 @@ class RoomScheduler:
         self.scheduler = sched.scheduler(time.time, time.sleep)
 
     def scheduleRemove(self, room_id):
-        print("scheduleRemove", room_id)
-        event = self.scheduler.enter(5, 1, db_remove, argument=(room_id,))
+        print(f"scheduleRemove: {room_id}번방의 상태를 변경중입니다...")
+        event = self.scheduler.enter(10, 1, db_remove, argument=(room_id,))
 
         self.event_maps[room_id] = event
 
@@ -32,8 +33,7 @@ class RoomScheduler:
         thread.start()
 
     def cancelRemove(self, room_id):
-        print("cancelRemove", room_id)
-
+        print(f"cancelRemove: {room_id}방의 클리닝이 취소되었습니다...")
         if room_id in self.event_maps:
             event = self.event_maps.get(room_id)
             self.scheduler.cancel(event)

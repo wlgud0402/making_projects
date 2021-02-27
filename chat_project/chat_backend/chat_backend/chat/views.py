@@ -3,9 +3,10 @@ import redis_server
 import json
 from django.shortcuts import render, HttpResponse
 from .models import Room
+from .scheduler import roomScheduler
 
 
-r = redis.Redis(host='localhost', port=6379, db=0)
+# r = redis.Redis(host='localhost', port=6379, db=0)
 
 
 def index(request):
@@ -76,6 +77,8 @@ def changeroomstatus(request):
             }))
             print("퍼블리시ㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣ")
             # 클리닝 돌리고있는 스케쥴러 켄슬시킴
+            roomScheduler.cancelRemove(room_id)
+
         return HttpResponse("잘되써")
     else:
         return HttpResponse("POST로 오지 않음")

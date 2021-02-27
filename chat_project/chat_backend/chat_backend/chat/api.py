@@ -5,6 +5,9 @@ from django.http import JsonResponse
 from rest_framework.response import Response
 import jwt
 from rest_framework import status
+import redis
+import redis_server
+import json
 
 
 #     def get_object(self, pk):
@@ -67,6 +70,7 @@ class RoomAPI(APIView):
         serializer = GetRoomSerializer(Room.objects.all(), many=True)
         return Response(serializer.data)
 
+    # 방만들기
     def put(self, request, format=None):
         number = request.data['number']
         uuid = request.data['uuid']
@@ -76,6 +80,12 @@ class RoomAPI(APIView):
 
         if room_serializer.is_valid():
             room_serializer.save()
+
+            r = redis.Redis(host='localhost', port=6379, db=0)
+            r.publish('room-refresh', json.dumps({
+                'room_id': number,
+            }))
+
             return JsonResponse({"room_uuid": uuid})
         return JsonResponse(room_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

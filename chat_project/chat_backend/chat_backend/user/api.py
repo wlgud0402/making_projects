@@ -3,6 +3,9 @@ from .models import User
 from .serializers import UserSerializer, UserPeerSerializer
 from django.http import JsonResponse
 import jwt
+import redis
+import redis_server
+import json
 
 # return Response({
 #     "user": UserSerializer(user, context=self.get_serializer_context()).data,
@@ -54,6 +57,11 @@ class GuestUserAPI(APIView):
             room_uuid=request.data['room_uuid'],
         )
 
+        r = redis.Redis(host='localhost', port=6379, db=0)
+        r.publish('room-refresh', json.dumps({
+            'room_id': room_id,
+        }))
+
         # JWT TOKEN RESPONSE
         guest_token = jwt.encode(
             {'user_id': guest.id,
@@ -63,6 +71,7 @@ class GuestUserAPI(APIView):
         return JsonResponse({'user_token': guest_token})
 
 
+# 유저가 방에 입장
 class UserPeerAPI(APIView):
     def post(self, request, format=None):
         print("새로운 피어아이디와 방정보를 저장하기 위해 있는곳이고 데이터 잘 받았니?")
@@ -70,6 +79,12 @@ class UserPeerAPI(APIView):
         peer_id = request.data['peer_id']
         room_id = request.data['room_id']
         room_uuid = request.data['room_uuid']
+
+        r = redis.Redis(host='localhost', port=6379, db=0)
+        r.publish('room-refresh', json.dumps({
+            'room_id': room_id,
+        }))
+
         user = User.objects.get(id=user_id)
         user.peer_id = peer_id
         user.room_id = room_id
