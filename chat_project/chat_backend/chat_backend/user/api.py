@@ -85,3 +85,23 @@ class GetUserPeerAPI(APIView):
         all_peer_ids = User.objects.filter(room_id=room_id).values('peer_id')
         serializer = UserPeerSerializer(all_peer_ids, many=True)
         return JsonResponse({"all_peer_ids": serializer.data})
+
+
+# 나머지 기능들
+class ChangeUserNicknameAPI(APIView):
+    def put(self, reuqest):
+        user_id = request.data['user_id']
+        new_nickname = request.data['new_nickname']
+
+        user = User.objects.get(id=user_id)
+        user.nickname = new_nickname
+        user.save()
+
+        new_user_token = jwt.encode(
+            {'user_id': user.id, 'email': user.email,
+                'nickname': user.nickname, 'user_type': user.user_type},
+            "secret", algorithm="HS256")
+
+        return JsonResponse({
+            'user_token': new_user_token
+        })

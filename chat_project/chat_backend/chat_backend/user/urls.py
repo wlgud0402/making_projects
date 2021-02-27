@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import index, hello
-from .api import UserAPI, UserPeerAPI, GuestUserAPI, GetUserPeerAPI
+from .api import UserAPI, UserPeerAPI, GuestUserAPI, GetUserPeerAPI, ChangeUserNicknameAPI
 from rest_framework import generics
 from .views import getMessage, disconnected
 
@@ -14,4 +14,5 @@ urlpatterns = [
     path('hello/', hello, name='hello'),
     path('getMessage/', getMessage, name='getMessage'),
     path('disconnected/', disconnected, name='disconnected'),
+    path('changeUserNickname/', ChangeUserNicknameAPI, name='changeUserNickname'),
 ]
