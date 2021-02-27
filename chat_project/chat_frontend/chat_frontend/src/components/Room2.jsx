@@ -10,7 +10,16 @@ import ShowLocalVideo from "./ShowLocalVideo";
 const receivedPeerIds = new Set();
 ////////////////////////////////
 let socket;
+
 const Room2 = ({ location }) => {
+  let displayMediaOptions = {
+    video: {
+      cursor: "always",
+    },
+    audio: false,
+  };
+
+  let peerRef = useRef("");
   const ENDPOINT = "http://localhost:5000";
 
   const [roomNumber, setRoomNumber] = useState("");
@@ -29,12 +38,12 @@ const Room2 = ({ location }) => {
         port: "3001",
         path: "/",
       });
+      peerRef.current = peer;
       // var socket = io('http://localhost:5000', { transport : ['websocket'] });
       socket = io(ENDPOINT, {
         transports: ["websocket", "polling", "flashsocket"],
       });
-      // socket = io(ENDPOINT);
-      // console.log(socket);
+
       peer.on("open", async () => {
         const room_data = await axios.get(
           `http://localhost:8000/api/chat/getroom/?uuid=${uuid}`
@@ -60,15 +69,12 @@ const Room2 = ({ location }) => {
         //peer_id와 같을경우 삭제하려고 했지만 pips가 빈배열로 나온다 ㅠ
         socket.on("user-had-left", (room_id, peer_id) => {
           setDisconnectedUser(peer_id);
-          console.log(room_id, "번방의", peer_id, "가 나갔어욤");
-          console.log(pips);
-          pips.forEach((pip) => {
-            console.log("한개의 pipㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ", pip);
+          console.log(room_id, "번방의", peer_id, "가갔욤");
+          console.log("나가기전: pips ", pips);
+          setPips((prevPips) => {
+            const nextPips = pips.filter((pip) => pip.peer_id !== peer_id);
+            return nextPips;
           });
-          // setPips((pips) => {
-          //   const newPips = [...pips, pip];
-          //   return newPips;
-          // });
         });
 
         socket.on("user-disconnected", () => {
@@ -113,7 +119,7 @@ const Room2 = ({ location }) => {
           video: true,
           audio: true,
         });
-        // myStream.muted = true;
+        myStream.muted = true;
 
         let user_token = localStorage.getItem("user_token");
         let info = jwt_decode(user_token);
@@ -129,13 +135,16 @@ const Room2 = ({ location }) => {
 
         //다른유저가 보낸 콜을 받을시에
         peer.on("call", function (call) {
-          // console.log("그자체", call);
           console.log(
             "call을 받았다!!! 나도 뭔가를 전해주자 myStream",
             myStream
           );
           call.on("stream", async (otherStream) => {
-            console.log("스트림받음call.on otherstream", otherStream, call);
+            console.log(
+              "스트림받음call.on otherstream1111111",
+              otherStream,
+              call
+            );
             console.log("call.peer: 연락을 받은 유저의 peer", call.peer);
 
             const user_data = await axios.get(
@@ -148,12 +157,21 @@ const Room2 = ({ location }) => {
               user_type: user_data.data.user_type,
               stream: otherStream,
             };
-
             if (receivedPeerIds.has(call.peer)) {
-              console.log("이미 존재하는 call.peer", receivedPeerIds);
+              if (call.metadata) {
+                console.log("화면공유 or 화면공유 종료");
+                setPips((prevPips) => {
+                  const samePeerRemovedPips = pips.filter(
+                    (pip) => pip.peer_id !== call.peer
+                  );
+                  const newPips = [...samePeerRemovedPips, pip];
+                  return newPips;
+                });
+              } else {
+                console.log("아무런 동작도 하지 않습니다.");
+              }
             } else {
               receivedPeerIds.add(call.peer);
-              console.log("추가해씁니다", receivedPeerIds);
               setPips((pips) => {
                 const newPips = [...pips, pip];
                 return newPips;
@@ -172,7 +190,7 @@ const Room2 = ({ location }) => {
           // 다른사람의 answer로 stream을 받아옵니다 ㅎㅎ
           call.on("stream", async (otherStream) => {
             console.log(
-              "call.answer를 통해 다른사람의 스트림을 받아옴 otherStream: ",
+              "call.answer를 통해 다른사람의 스트림을 받아옴 otherStream: 22222",
               otherStream,
               "peerdata.peer_id::::",
               peerdata.peer_id
@@ -200,7 +218,7 @@ const Room2 = ({ location }) => {
         });
       });
     })();
-  }, [disconnectedUser]);
+  }, []);
 
   //메시지 관련
   const textMessageRef = useRef();
@@ -222,6 +240,50 @@ const Room2 = ({ location }) => {
     setTextMessage(e.target.value);
   };
 
+  const onShareMyScreen = async (e) => {
+    const myScreenStream = await navigator.mediaDevices.getDisplayMedia(
+      displayMediaOptions
+    );
+
+    const room_data = await axios.get(
+      `http://localhost:8000/api/chat/getroom/?uuid=${uuid}`
+    );
+    console.log("room_data.data: 내 화면공유를 위해1", room_data.data);
+
+    const peer_data = await axios.get(
+      `http://localhost:8000/api/user/peerbyroom/${room_data.data.room_id}`
+    );
+
+    peer_data.data.all_peer_ids.forEach((peerdata) => {
+      if (peerdata.peer_id === peerRef.current.id) return; //내가 내자신한테 할필요는 없다
+      // 내가나와 연결된 사람에게 콜합니다...
+      peerRef.current.call(peerdata.peer_id, myScreenStream, {
+        metadata: JSON.stringify({ streamType: "SCREEN" }),
+      });
+    });
+
+    //화면공유가 종류된후
+    const screenTrack = myScreenStream.getTracks()[0];
+    screenTrack.onended = async () => {
+      const myStream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: true,
+      });
+      myStream.muted = true;
+      peer_data.data.all_peer_ids.forEach((peerdata) => {
+        if (peerdata.peer_id === peerRef.current.id) return; //내가 내자신한테 할필요는 없다
+        // 내가나와 연결된 사람에게 콜합니다...
+        peerRef.current.call(peerdata.peer_id, myStream, {
+          metadata: JSON.stringify({ streamType: "ENDSCREEN" }),
+        });
+      });
+    };
+  };
+
+  //   this._peer.call(peerId, localScreenStream, {
+  //     metadata: JSON.stringify({ streamType: streamTypes.SCREEN }),
+  // });
+
   return (
     <div>
       <h1>Room2.jsx</h1>
@@ -241,6 +303,7 @@ const Room2 = ({ location }) => {
       </div>
       {/* 나만 보여주기 */}
       <ShowLocalVideo key={localPip.peer_id} pip={localPip} />
+      <button onClick={onShareMyScreen}>내 화면을 공유해라 시발!</button>
       {/* 다른사람도 보여주느곳ㄴ */}
       {pips.map((pip) => {
         if (localPip.peer_id === pip.peer_id) return;

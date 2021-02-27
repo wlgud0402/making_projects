@@ -12,7 +12,7 @@ const ShowVideo = (pip) => {
   }, [pip.pip.stream]);
   return (
     <div>
-      <video ref={videoRef} autoPlay />
+      <video controls ref={videoRef} autoPlay />
       <h6>{pip.pip.nickname}</h6>
     </div>
   );
