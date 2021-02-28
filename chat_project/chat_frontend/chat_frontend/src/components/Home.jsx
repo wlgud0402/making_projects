@@ -3,6 +3,8 @@ import Nav from "./Nav";
 import jwt_decode from "jwt-decode";
 import { useHistory } from "react-router-dom";
 import Header from "./Header";
+import { DropdownButton, Dropdown, ButtonGroup } from "react-bootstrap";
+import Footer from "./Footer";
 
 const Home = () => {
   // const [userInfo, setUserInfo] = useState("");
@@ -34,8 +36,10 @@ const Home = () => {
   return (
     <div>
       <Header />
-      <Nav />
-      <button onClick={onClickStartMeeting}>미팅시작</button>
+      <div>
+        <button onClick={onClickStartMeeting}>미팅시작</button>
+      </div>
+      <Footer />
     </div>
   );
 };

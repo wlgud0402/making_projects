@@ -3,3 +3,6 @@ video {
   -webkit-transform: rotateY(180deg); /* Safari and Chrome */
   -moz-transform: rotateY(180deg); /* Firefox */
 }
+video:-webkit-full-scren {
+  transform: rotateY(180deg) !important;
+}

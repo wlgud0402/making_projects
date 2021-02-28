@@ -3,8 +3,11 @@ import axios from "axios";
 import { Card } from "react-bootstrap";
 import { v4 as uuidv4 } from "uuid";
 import { useHistory } from "react-router-dom";
+import io from "socket.io-client";
 
+let socket;
 const RoomList2 = () => {
+  const ENDPOINT = "http://localhost:5000";
   let history = useHistory();
   const [roomList, setRoomList] = useState([]);
   useEffect(() => {
@@ -12,6 +15,21 @@ const RoomList2 = () => {
       const res = await axios.get("http://localhost:8000/api/chat/room/");
       setRoomList(res.data);
       console.log(res.data);
+
+      // room-refresh 이벤트를 받기위한 소켓
+      socket = io(ENDPOINT, {
+        transports: ["websocket", "polling", "flashsocket"],
+      });
+      socket.emit("join-roomlist", "데이터잘가나여!");
+
+      socket.on("room-refresh", async (data) => {
+        console.log("roomlist에서 room-refresh가 일어납니다.");
+        const refreshRes = await axios.get(
+          "http://localhost:8000/api/chat/room/"
+        );
+        setRoomList(refreshRes.data);
+        console.log("리프레시데이터", refreshRes.data);
+      });
     })();
   }, []);
 
@@ -31,6 +49,7 @@ const RoomList2 = () => {
     });
   };
 
+  //방의 상태가 ACTIVE일때와 CLEANING일때만 보여줘야함
   const onClickIntoRoom = async (e) => {
     const id = e.target.id;
     const res = await axios.get(

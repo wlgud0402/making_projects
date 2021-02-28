@@ -5,13 +5,15 @@ import jwt_decode from "jwt-decode";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import ShowVideo from "./ShowVideo";
 import io from "socket.io-client";
-import { RedisClient } from "redis";
 import ShowLocalVideo from "./ShowLocalVideo";
+import { useHistory } from "react-router-dom";
+
 const receivedPeerIds = new Set();
 ////////////////////////////////
 let socket;
 
 const Room2 = ({ location }) => {
+  let history = useHistory();
   let displayMediaOptions = {
     video: {
       cursor: "always",
@@ -97,6 +99,13 @@ const Room2 = ({ location }) => {
         } else {
           const guest_nickname = await prompt(
             "사용하실 닉네임을 입력해주세요."
+          );
+          console.log(
+            "room_data.data.room_id",
+            room_data.data.room_id,
+            guest_nickname,
+            peer.id,
+            uuid
           );
           const guest_data = await axios.post(
             "http://localhost:8000/api/user/peer/guest",
@@ -218,7 +227,20 @@ const Room2 = ({ location }) => {
         });
       });
     })();
+    return function cleanup() {
+      console.log("클린펑션실행");
+      socket.emit("user-outroom", {
+        room_id: "roomNumber",
+        peer_id: "localPip.peer_id",
+      });
+      // socket.close();
+    };
   }, []);
+
+  function cleanup() {
+    console.log("디스이즈 클린업 펑션");
+    // socket.emit("user-outroom");
+  }
 
   //메시지 관련
   const textMessageRef = useRef();
@@ -238,6 +260,12 @@ const Room2 = ({ location }) => {
 
   const onChangeTextMessage = (e) => {
     setTextMessage(e.target.value);
+  };
+
+  const onOutRoom = (e) => {
+    socket.emit("user-outroom");
+    history.push("/");
+    // socket.close(1005, "user clicked outRoomButton");
   };
 
   const onShareMyScreen = async (e) => {
@@ -304,6 +332,7 @@ const Room2 = ({ location }) => {
       {/* 나만 보여주기 */}
       <ShowLocalVideo key={localPip.peer_id} pip={localPip} />
       <button onClick={onShareMyScreen}>내 화면을 공유해라 시발!</button>
+      <button onClick={onOutRoom}>방나가기</button>
       {/* 다른사람도 보여주느곳ㄴ */}
       {pips.map((pip) => {
         if (localPip.peer_id === pip.peer_id) return;

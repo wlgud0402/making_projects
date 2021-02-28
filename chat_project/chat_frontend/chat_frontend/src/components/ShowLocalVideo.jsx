@@ -8,7 +8,7 @@ const ShowLocalVideo = (pip) => {
     video: {
       cursor: "always",
     },
-    audio: false,
+    audio: true,
   };
 
   // start.addEventListener("click", function (e) {
@@ -38,10 +38,15 @@ const ShowLocalVideo = (pip) => {
   //   shareVideoRef.current.srcObject = navigator
   // },[])
 
+  // var myVideo = document.getElementById("videoTag1");
+  // myVideo.msHorizontalMirror = true;
+  // myVideo.play();
+
   const videoRef = useRef(null);
   useEffect(() => {
     videoRef.current.srcObject = pip.pip.stream;
     videoRef.current.muted = true;
+    videoRef.current.msHorizontalMirror = true;
     console.log("내비디오 스트림", videoRef.current.srcObject);
   }, [pip.pip.stream]);
 
@@ -86,10 +91,9 @@ const ShowLocalVideo = (pip) => {
     console.log("공유 중지하기");
   };
 
-  // console.log(videoRef.current.srcObject); muted
   return (
     <div>
-      <video id="video" ref={shareVideoRef} autoPlay></video>
+      {/* <video id="video" ref={shareVideoRef} autoPlay></video> */}
       <video controls ref={videoRef} autoPlay />
       <button onClick={playStop}>영상</button>
       <button onClick={muteUnmute}>소리</button>
