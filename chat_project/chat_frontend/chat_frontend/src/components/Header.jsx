@@ -19,10 +19,6 @@ const Header = () => {
     }
   }, []);
 
-  // const onUserProfileClick = (e) => {
-  //   e.stopPropagation();
-  //   // app.toggleProfileDropdown();
-  // };
   const onLogout = (e) => {
     localStorage.clear();
     setUserInfo("");
@@ -102,7 +98,7 @@ const Wrapper = styled.div`
   height: 65px;
   display: flex;
   justify-content: center;
-  background-color: #6c757d;
+  background-color: #343a40;
 `;
 
 const LogoContainer = styled.div`

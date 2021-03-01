@@ -4,6 +4,9 @@ import { Card } from "react-bootstrap";
 import { v4 as uuidv4 } from "uuid";
 import { useHistory } from "react-router-dom";
 import io from "socket.io-client";
+import Header from "./Header";
+import Footer from "./Footer";
+import styled from "styled-components";
 
 let socket;
 const RoomList2 = () => {
@@ -98,20 +101,27 @@ const RoomList2 = () => {
       );
     } else {
       return (
-        <Card
-          key={room.number}
-          border="dark"
-          style={{ width: "18rem" }}
-          className="box"
-        >
-          <Card.Header>{room.number}번방</Card.Header>
-          <Card.Body>
-            <Card.Title>방제목: {room.name}</Card.Title>
-            <button id={room.number} onClick={onClickMakeRoom}>
-              만들기
-            </button>
-          </Card.Body>
-        </Card>
+        <CardBox>
+          <Card>{room.number}번방</Card>
+
+          <p>{room.number}번방</p>
+          <p>방제목 {room.name}</p>
+          <button>만들기</button>
+          {/* <Card
+            key={room.number}
+            border="dark"
+            style={{ width: "18rem" }}
+            className="box"
+          >
+            <Card.Header>{room.number}번방</Card.Header>
+            <Card.Body>
+              <Card.Title>방제목: {room.name}</Card.Title>
+              <button id={room.number} onClick={onClickMakeRoom}>
+                만들기
+              </button>
+            </Card.Body>
+          </Card> */}
+        </CardBox>
       );
     }
     // return (
@@ -119,21 +129,96 @@ const RoomList2 = () => {
   };
 
   return (
-    <div className="box">
-      <h1>전체방목록</h1>
-      <div className="grid">{roomList.map(renderRoom)}</div>
-      {/* {roomList.map((room) => {
-        return (
-          <div className="grid">
-            <h1>{room.number}</h1>
-            <h1>{room.name}</h1>
-            <h1>{room.status}</h1>
-            <h1>{room.password}</h1>
-          </div>
-        );
-      })} */}
-    </div>
+    <>
+      <Header />
+      <Box>
+        <h1>전체방목록</h1>
+        <ContentBox>{roomList.map(renderRoom)}</ContentBox>
+      </Box>
+      <Footer />
+    </>
   );
 };
 
 export default RoomList2;
+
+const Box = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  -webkit-box-align: center;
+  align-items: center;
+  background-color: rgb(255, 255, 255);
+  margin-bottom: 30px;
+`;
+
+const ContentBox = styled.div`
+  width: 1200px;
+  display: flex;
+  flex-wrap: wrap;
+`;
+
+const CardBox = styled.div`
+  position: relative;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 200px;
+  border-radius: 10px;
+  transition: all 0.2s ease-in 0s;
+  background-color: rgb(73, 73, 74);
+  opacity: 0.5;
+  color: rgb(255, 255, 255);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  margin-bottom: 25px;
+`;
+// position: relative;
+// top: 0px;
+// left: 0px;
+// width: 100%;
+// height: 200px;
+// border-radius: 10px;
+// transition: all 0.2s ease-in 0s;
+// background-color: rgb(73, 73, 74);
+// opacity: 0.3;
+// color: rgb(255, 255, 255);
+// display: flex;
+// justify-content: center;
+// align-items: center;
+// padding: 10px;
+// margin-bottom: 25px;
+
+// const Card = styled.div`
+//   width: 18rem;
+//   position: relative;
+//   width: 33%;
+//   display: flex;
+//   opacity: 1;
+//   transform: none;
+//   justify-content: center;
+//   position: relative;
+//   top: 0px;
+//   left: 0px;
+//   width: 100%;
+//   height: 200px;
+//   border-radius: 10px;
+//   transition: all 0.2s ease-in 0s;
+//   background-color: rgb(73, 73, 74);
+//   opacity: 0.3;
+//   color: rgb(255, 255, 255);
+//   align-items: center;
+//   padding: 10px;
+// `;
+
+// width: 100%;
+// height: 100%;
+// display: flex;
+// flex-direction: column;
+// -webkit-box-align: center;
+// align-items: center;
+// background-color: rgb(255, 255, 255);
+// margin-bottom: 30px;

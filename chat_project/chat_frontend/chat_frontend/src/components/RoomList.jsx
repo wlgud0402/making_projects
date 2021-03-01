@@ -3,6 +3,7 @@ import axios from "axios";
 import { Card } from "react-bootstrap";
 import { v4 as uuidv4 } from "uuid";
 import { useHistory } from "react-router-dom";
+import Header from "./Header";
 
 const RoomList = () => {
   let history = useHistory();
@@ -81,10 +82,20 @@ const RoomList = () => {
   };
 
   return (
-    <div className="box">
-      <h1>전체방목록</h1>
-      <div className="grid">{roomList.map(renderRoom)}</div>
-      {/* {roomList.map((room) => {
+    <>
+      <div className="box">
+        <Header />
+        <h1>전체방목록</h1>
+        <div className="grid">{roomList.map(renderRoom)}</div>
+      </div>
+    </>
+  );
+};
+
+export default RoomList;
+
+{
+  /* {roomList.map((room) => {
         return (
           <div className="grid">
             <h1>{room.number}</h1>
@@ -93,9 +104,5 @@ const RoomList = () => {
             <h1>{room.password}</h1>
           </div>
         );
-      })} */}
-    </div>
-  );
-};
-
-export default RoomList;
+      })} */
+}

@@ -9,6 +9,7 @@ import { BrowserRouter, Route } from "react-router-dom";
 import TestPeer from "./components/TestPeer";
 import RoomList2 from "./components/RoomList2";
 import Room2 from "./components/Room2";
+import TestCss from "./components/TestCss";
 
 function App() {
   return (
@@ -19,6 +20,8 @@ function App() {
 
       <Route path="/room2" component={Room2} />
       <Route exact path="/roomlist2" component={RoomList2} />
+      <Route exact path="/testcss" component={TestCss} />
+
       {/* <div className="App">
         <Nav />
         <div className="auth-wrapper">
