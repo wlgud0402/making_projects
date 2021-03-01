@@ -83,7 +83,7 @@ class RoomAPI(APIView):
 
             r = redis.Redis(host='localhost', port=6379, db=0)
             r.publish('room-refresh', json.dumps({
-                'room_id': number,
+                'room_id': request.data['number'],
             }))
 
             return JsonResponse({"room_uuid": uuid})

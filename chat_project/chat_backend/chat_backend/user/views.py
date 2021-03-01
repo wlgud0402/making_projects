@@ -5,7 +5,8 @@ import redis
 import json
 from .models import User
 from chat.models import Room
-from .scheduler import roomScheduler
+# from .scheduler import roomScheduler
+from util.scheduler import roomScheduler
 from rest_framework import status
 from rest_framework.response import Response
 
@@ -74,11 +75,11 @@ def disconnected(request):
                 # 방안에 유저가 한명도 없다면 방상태를 CLEANING으로 바꿔주고 room-refresh실행
                 r = redis.Redis(host='localhost', port=6379, db=0)
                 r.publish('room-refresh', json.dumps({
-                    'room_id': room_id,
+                    'room_id': json.loads(data)['room_id'],
                 }))
 
                 print("스케줄링 시작")
-                roomScheduler.scheduleRemove(room_id)
+                roomScheduler.scheduleRemove(json.loads(data)['room_id'])
 
             return HttpResponse()
         except:

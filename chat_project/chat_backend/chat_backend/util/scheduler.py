@@ -2,6 +2,10 @@ import sched
 import time
 import threading
 from chat.models import Room
+import redis
+import redis_server
+import json
+from util.redis import r
 
 
 def db_remove(room_id):
@@ -11,8 +15,12 @@ def db_remove(room_id):
     room.status = "IDLE"
     room.uuid = "NULL"
     room.password = "NULL"
-    is_private = False
+    room.is_private = False
     room.save()
+    # r = redis.Redis(host='localhost', port=6379, db=0)
+    r.publish('room-refresh', json.dumps({
+        'room_id': room_id,
+    }))
 
 
 class RoomScheduler:
@@ -21,10 +29,12 @@ class RoomScheduler:
         self.scheduler = sched.scheduler(time.time, time.sleep)
 
     def scheduleRemove(self, room_id):
-        print(f"scheduleRemove: {room_id}번방의 상태를 변경중입니다...")
+        print(f"scheduleRemove: {room_id}번방의 상태를 변경중입니다...!!!")
         event = self.scheduler.enter(10, 1, db_remove, argument=(room_id,))
 
         self.event_maps[room_id] = event
+
+        print("1111111111111", self.event_maps)
 
         def runScheduler():
             self.scheduler.run()
@@ -34,7 +44,9 @@ class RoomScheduler:
 
     def cancelRemove(self, room_id):
         print(f"cancelRemove: {room_id}방의 클리닝이 취소되었습니다...")
+        print("zzzzzzzz", self.event_maps)
         if room_id in self.event_maps:
+            print(room_id, "있어서 취소하께")
             event = self.event_maps.get(room_id)
             self.scheduler.cancel(event)
 

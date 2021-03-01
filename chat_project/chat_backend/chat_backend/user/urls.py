@@ -14,5 +14,6 @@ urlpatterns = [
     path('hello/', hello, name='hello'),
     path('getMessage/', getMessage, name='getMessage'),
     path('disconnected/', disconnected, name='disconnected'),
-    path('changeUserNickname/', ChangeUserNicknameAPI, name='changeUserNickname'),
+    path('changeUserNickname/', ChangeUserNicknameAPI.as_view(),
+         name='changeUserNickname'),
 ]

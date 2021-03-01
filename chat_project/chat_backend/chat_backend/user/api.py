@@ -57,10 +57,12 @@ class GuestUserAPI(APIView):
             room_uuid=request.data['room_uuid'],
         )
 
+        print("ㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜ")
         r = redis.Redis(host='localhost', port=6379, db=0)
         r.publish('room-refresh', json.dumps({
-            'room_id': room_id,
+            'room_id': request.data['room_id'],
         }))
+        print("ㅗㅗㅗㅗㅗㅗㅗㅗㅗㅗㅗㅗㅗㅗㅗㅗㅗㅗㅗㅗㅗㅗㅗㅗㅗㅗㅗㅗㅗㅗㅗㅗㅗㅗㅗㅗ")
 
         # JWT TOKEN RESPONSE
         guest_token = jwt.encode(
@@ -82,7 +84,7 @@ class UserPeerAPI(APIView):
 
         r = redis.Redis(host='localhost', port=6379, db=0)
         r.publish('room-refresh', json.dumps({
-            'room_id': room_id,
+            'room_id': request.data['room_id'],
         }))
 
         user = User.objects.get(id=user_id)
@@ -104,10 +106,12 @@ class GetUserPeerAPI(APIView):
 
 # 나머지 기능들
 class ChangeUserNicknameAPI(APIView):
-    def put(self, reuqest):
+    def put(self, request):
         user_id = request.data['user_id']
         new_nickname = request.data['new_nickname']
 
+        print("ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ")
+        print(user_id, new_nickname)
         user = User.objects.get(id=user_id)
         user.nickname = new_nickname
         user.save()
@@ -117,6 +121,7 @@ class ChangeUserNicknameAPI(APIView):
                 'nickname': user.nickname, 'user_type': user.user_type},
             "secret", algorithm="HS256")
 
+        print("new_user_token 발급됨")
         return JsonResponse({
             'user_token': new_user_token
         })

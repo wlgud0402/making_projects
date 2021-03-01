@@ -3,7 +3,8 @@ import redis_server
 import json
 from django.shortcuts import render, HttpResponse
 from .models import Room
-from .scheduler import roomScheduler
+# from .scheduler import roomScheduler
+from util.scheduler import roomScheduler
 
 
 # r = redis.Redis(host='localhost', port=6379, db=0)
@@ -73,7 +74,7 @@ def changeroomstatus(request):
             # socket 서버에 퍼블리시를 통해 알려준다
             r = redis.Redis(host='localhost', port=6379, db=0)
             r.publish('room-refresh', json.dumps({
-                'room_id': room_id,
+                'room_id': json.loads(data)['room_id'],
             }))
             print("퍼블리시ㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣ")
             # 클리닝 돌리고있는 스케쥴러 켄슬시킴
