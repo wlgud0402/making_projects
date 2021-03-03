@@ -7,6 +7,7 @@ import ShowVideo from "./ShowVideo";
 import io from "socket.io-client";
 import ShowLocalVideo from "./ShowLocalVideo";
 import styled from "styled-components";
+import $ from "jquery";
 import { useHistory } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMicrophone } from "@fortawesome/free-solid-svg-icons";
@@ -68,10 +69,18 @@ const Room2 = ({ location }) => {
         socket.on("createMessage", (jsonData) => {
           if (jsonData.peer_id !== peer.id) {
             console.log(
-              "index.js에서 socket.emit이 발생 jsonData를 받아옴",
+              "닉네임: ",
               jsonData.nickname,
+              "메시지내용: ",
               jsonData.message
             );
+            $("ul").append(
+              `<div className="otherMessage"><li>${jsonData.nickname}</li><li>${jsonData.message}</li></div>`
+            );
+            // document
+            //   .getElementsByClassName(".ul")
+            //   .append(`<li>${jsonData.nickname}</li>`);
+            // console.log(document.getElementsByClassName(".ul"));
           }
         });
 
@@ -264,6 +273,8 @@ const Room2 = ({ location }) => {
       room_id: roomNumber,
       peer_id: localPip.peer_id,
     });
+    $("ul").append(`<div className="myMessage"><li>${textMessage}</li></div>`);
+
     setTextMessage("");
     textMessageRef.current.value = "";
   };
@@ -321,52 +332,61 @@ const Room2 = ({ location }) => {
   //   this._peer.call(peerId, localScreenStream, {
   //     metadata: JSON.stringify({ streamType: streamTypes.SCREEN }),
   // });
-
   return (
     <>
       <MainHeader>
-        <div className="headerRoomNumber">{roomNumber}</div>
-        <div className="headerRoomName">{roomName}</div>
-        <div>
-          <CopyToClipboard text={document.location.href}>
+        <div className="MainHeaderInfo">
+          <div className="headerRoomNumber">{roomNumber}</div>
+          <div className="headerRoomName">{roomName}</div>
+        </div>
+        <div className="MainHeaderControls">
+          <div className="Controldiv">
+            <CopyToClipboard text={document.location.href}>
+              <FontAwesomeIcon
+                className="inviteIcon headerIcon"
+                icon={faUsers}
+                size="2x"
+                onClick={onCopyToClipboard}
+              />
+            </CopyToClipboard>
+            <p className="arrow_box">초대하기</p>
+          </div>
+          <div className="Controldiv">
             <FontAwesomeIcon
-              className="inviteIcon headerIcon"
-              icon={faUsers}
+              className="screenShareIcon headerIcon"
+              icon={faDesktop}
               size="2x"
-              onClick={onCopyToClipboard}
+              onClick={onShareMyScreen}
             />
-          </CopyToClipboard>
-        </div>
-        <div>
-          <FontAwesomeIcon
-            className="screenShareIcon headerIcon"
-            icon={faDesktop}
-            size="2x"
-            onClick={onShareMyScreen}
-          />
-        </div>
-        <div>
-          <FontAwesomeIcon
-            className="videoPlayStopIcon headerIcon"
-            icon={faVideo}
-            size="2x"
-          />
-        </div>
-        <div>
-          <FontAwesomeIcon
-            className="muteUnMuteIcon headerIcon"
-            icon={faMicrophone}
-            size="2x"
-          />
-        </div>
-        <div>
-          <FontAwesomeIcon
-            className="getOutRoom headerIcon"
-            icon={faDoorOpen}
-            size="2x"
-          />
+            <p className="arrow_box">화면공유</p>
+          </div>
+          <div className="Controldiv">
+            <FontAwesomeIcon
+              className="videoPlayStopIcon headerIcon"
+              icon={faVideo}
+              size="2x"
+            />
+            <p className="arrow_box">카메라끄기</p>
+          </div>
+          <div className="Controldiv">
+            <FontAwesomeIcon
+              className="muteUnMuteIcon headerIcon"
+              icon={faMicrophone}
+              size="2x"
+            />
+            <p className="arrow_box">마이크끄기</p>
+          </div>
+          <div className="Controldiv">
+            <FontAwesomeIcon
+              className="getOutRoom headerIcon"
+              icon={faDoorOpen}
+              size="2x"
+            />
+            <p className="arrow_box">방 나가기</p>
+          </div>
         </div>
       </MainHeader>
+
       <Main>
         <MainLeft>
           <MainVideos>
@@ -380,23 +400,36 @@ const Room2 = ({ location }) => {
         </MainLeft>
         <MainRight>
           <ChatHeader>채팅</ChatHeader>
+          <ChatBody>
+            <ul className="messages"></ul>
+          </ChatBody>
+          <ChatContainer>
+            {/* <textarea></textarea> */}
+            <form onSubmit={onSubmitMessage}>
+              <input
+                type="text"
+                name="textMessage"
+                onChange={onChangeTextMessage}
+                placeholder="메세지를 입력해주세요..."
+                ref={textMessageRef}
+              />
+              <button type="submit">전송</button>
+            </form>
+          </ChatContainer>
         </MainRight>
       </Main>
     </>
     // <div>
     //   <div>
-    // <CopyToClipboard text={document.location.href}>
-    //   <button onClick={onCopyToClipboard}>초대</button>
-    // </CopyToClipboard>
-    //     <form onSubmit={onSubmitMessage}>
-    //       <input
-    //         type="text"
-    //         name="textMessage"
-    //         onChange={onChangeTextMessage}
-    //         ref={textMessageRef}
-    //       />
-    //       <button type="submit">전송</button>
-    //     </form>
+    // <form onSubmit={onSubmitMessage}>
+    //   <input
+    //     type="text"
+    //     name="textMessage"
+    //     onChange={onChangeTextMessage}
+    //     ref={textMessageRef}
+    //   />
+    //   <button type="submit">전송</button>
+    // </form>
     //   </div>
 
     //   {/* 나만 보여주기 */}
@@ -429,6 +462,9 @@ const MainLeft = styled.div`
 
 const MainRight = styled.div`
   flex: 0.2;
+  background-color: #242324;
+  display: flex;
+  flex-direction: column;
 `;
 
 const MainVideos = styled.div`
@@ -444,12 +480,34 @@ const MainHeader = styled.div`
   /* display: block; */
   background-color: #1c1e20;
   display: flex;
+  padding: 4px;
+  align-items: center;
+
+  .MainHeaderControls {
+    display: flex;
+    flex: 0.2;
+    justify-content: space-evenly;
+
+    .Controldiv {
+      position: relative;
+      display: inline-block;
+    }
+  }
+
+  .MainHeaderInfo {
+    display: flex;
+    flex: 0.6;
+    /*  */
+  }
 
   .headerIcon {
     color: #d2d2d2;
     cursor: pointer;
     &:hover {
       opacity: 0.5;
+    }
+    &:hover + p.arrow_box {
+      display: block;
     }
   }
 
@@ -466,6 +524,45 @@ const MainHeader = styled.div`
     font-weight: bold;
     margin-left: 10px;
     color: white;
+  }
+
+  .getOutRoom {
+    color: red;
+    opacity: 0.5;
+    transition: all 0.1s ease-in;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+
+  .arrow_box {
+    display: none;
+    position: absolute;
+    width: 100px;
+    padding: 8px;
+    left: 0;
+    -webkit-border-radius: 8px;
+    -moz-border-radius: 8px;
+    border-radius: 8px;
+    background: #333;
+    color: #fff;
+    font-size: 14px;
+  }
+
+  .arrow_box:after {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    margin-left: -10px;
+    border: solid transparent;
+    border-color: rgba(51, 51, 51, 0);
+    border-bottom-color: #333;
+    border-width: 10px;
+    pointer-events: none;
+    content: " ";
   }
 
   /* .screenShareIcon {
@@ -505,7 +602,80 @@ const MainHeader = styled.div`
 `;
 
 const ChatHeader = styled.div`
-  width: 100px;
-  height: 20px;
-  background-color: red;
+  display: block;
+  color: #f5f5f5;
+  text-align: center;
+  padding: 15px;
+  font-size: 21px;
+`;
+
+const ChatBody = styled.div`
+  flex-grow: 1;
+
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    padding: 0px 10px 0px 10px;
+
+    .myMessage {
+      display: flex;
+      justify-content: flex-end;
+      li {
+        background-color: darkgray;
+        font-weight: bold;
+        border: 1px solid;
+        border-radius: 50px;
+        padding: 0px 10px 0px 10px;
+      }
+    }
+
+    .myMessage {
+      display: flex;
+      justify-content: flex-end;
+      li {
+        background-color: darkgray;
+        font-weight: bold;
+        border: 1px solid;
+        border-radius: 50px;
+        padding: 0px 10px 0px 10px;
+      }
+    }
+  }
+
+  /* ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    .myMessage {
+      display: flex;
+      justify-content: flex-end;
+      color: white;
+      padding: 10px;
+    }
+  } */
+`;
+const ChatContainer = styled.div`
+  padding: 22px 12px;
+  display: flex;
+
+  input {
+    flex-grow: 1;
+    background-color: transparent;
+    border: none;
+    color: #f5f5f5;
+    width: 275px;
+    height: 38px;
+  }
+
+  button {
+    border: none;
+    background-color: green;
+    height: 38px;
+    border-radius: 4px;
+    transition: all 0.1s ease-in;
+    &:hover {
+      background-color: lawngreen;
+    }
+  }
 `;

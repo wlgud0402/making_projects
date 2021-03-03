@@ -11,3 +11,6 @@ video {
     transform: rotateY(180deg) !important;
   }
    */
+video {
+  width: 400px;
+}

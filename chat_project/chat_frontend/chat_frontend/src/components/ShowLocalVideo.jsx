@@ -76,8 +76,8 @@ const ShowLocalVideo = (pip) => {
   return (
     <div>
       <video className="localVideo" ref={videoRef} autoPlay />
-      <button onClick={playStop}>영상</button>
-      <button onClick={muteUnmute}>소리</button>
+      {/* <button onClick={playStop}>영상</button>
+      <button onClick={muteUnmute}>소리</button> */}
       {/* <video id="video" ref={shareVideoRef} autoPlay></video> */}
       {/* <button onClick={onScreenShare}>화면공유</button> */}
       {/* <button onClick={onStopScreenShare}>공유 멈춤</button> */}
