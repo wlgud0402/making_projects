@@ -1,30 +1,14 @@
 import React, { useEffect, useRef } from "react";
 import "./ShowVideo.css";
+import onair from "../assets/onair.png";
 
 const ShowLocalVideo = (pip) => {
-  const videoElement = document.getElementById("video");
-  const start = document.getElementById("start");
   let displayMediaOptions = {
     video: {
       cursor: "always",
     },
     audio: true,
   };
-
-  // start.addEventListener("click", function (e) {
-  //   startCapture();
-  // });
-
-  // async function startCapture() {
-  //   try {
-  //     videoElement.srcObject = await navigator.mediaDevices.getUserMedia(
-  //       displayMediaOptions
-  //     );
-  //     console.log(videoElement);
-  //   } catch (error) {
-  //     console.log("error: ", error);
-  //   }
-  // }
 
   const shareVideoRef = useRef(null);
   // useEffect(() => {
@@ -69,6 +53,7 @@ const ShowLocalVideo = (pip) => {
     const enabled = videoRef.current.srcObject.getAudioTracks()[0].enabled;
     if (enabled) {
       videoRef.current.srcObject.getAudioTracks()[0].enabled = false;
+      videoRef.current = <img src={onair} alt={"onair"} />;
       // setUnmuteButton();
     } else {
       // setMuteButton();
@@ -76,30 +61,29 @@ const ShowLocalVideo = (pip) => {
     }
   };
 
-  const onScreenShare = async (e) => {
-    try {
-      videoRef.current.srcObject = await navigator.mediaDevices.getDisplayMedia(
-        displayMediaOptions
-      );
-      console.log("d");
-    } catch (err) {
-      console.log("에러: ", err);
-    }
-  };
+  // const onScreenShare = async (e) => {
+  //   try {
+  //     videoRef.current.srcObject = await navigator.mediaDevices.getDisplayMedia(
+  //       displayMediaOptions
+  //     );
+  //     console.log("화면공유를 시작합니다");
+  //   } catch (err) {
+  //     console.log("에러: ", err);
+  //   }
+  // };
 
-  const onStopScreenShare = (e) => {
-    console.log("공유 중지하기");
-  };
+  // const onStopScreenShare = (e) => {
+  //   console.log("공유 중지하기");
+  // };
 
   return (
     <div>
-      {/* <video id="video" ref={shareVideoRef} autoPlay></video> */}
       <video controls ref={videoRef} autoPlay />
       <button onClick={playStop}>영상</button>
       <button onClick={muteUnmute}>소리</button>
-      <button onClick={onScreenShare}>화면공유</button>
-      <button id="start">시작</button>
-      <button onClick={onStopScreenShare}>공유 멈춤</button>
+      {/* <video id="video" ref={shareVideoRef} autoPlay></video> */}
+      {/* <button onClick={onScreenShare}>화면공유</button> */}
+      {/* <button onClick={onStopScreenShare}>공유 멈춤</button> */}
       <h6>{pip.pip.nickname}</h6>
     </div>
   );

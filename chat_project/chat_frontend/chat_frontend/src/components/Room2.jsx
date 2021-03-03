@@ -6,6 +6,7 @@ import { CopyToClipboard } from "react-copy-to-clipboard";
 import ShowVideo from "./ShowVideo";
 import io from "socket.io-client";
 import ShowLocalVideo from "./ShowLocalVideo";
+import styled from "styled-components";
 import { useHistory } from "react-router-dom";
 
 const receivedPeerIds = new Set();
@@ -27,6 +28,7 @@ const Room2 = ({ location }) => {
   const [roomNumber, setRoomNumber] = useState("");
   const [localPip, setLocalPip] = useState([]);
   const [pips, setPips] = useState([]);
+
   const onCopyToClipboard = (e) => {
     alert("초대주소가 클립보드에 저장되었습니다.");
   };
@@ -313,47 +315,90 @@ const Room2 = ({ location }) => {
   // });
 
   return (
-    <div>
-      <h1>Room2.jsx</h1>
-      <div>
-        <CopyToClipboard text={document.location.href}>
-          <button onClick={onCopyToClipboard}>초대</button>
-        </CopyToClipboard>
-        <form onSubmit={onSubmitMessage}>
-          <input
-            type="text"
-            name="textMessage"
-            onChange={onChangeTextMessage}
-            ref={textMessageRef}
-          />
-          <button type="submit">제출</button>
-        </form>
-      </div>
-      {/* 나만 보여주기 */}
-      <ShowLocalVideo key={localPip.peer_id} pip={localPip} />
-      <button onClick={onShareMyScreen}>내 화면을 공유해라 시발!</button>
-      <button onClick={onOutRoom}>방나가기</button>
-      {/* 다른사람도 보여주느곳ㄴ */}
-      {pips.map((pip) => {
-        if (localPip.peer_id === pip.peer_id) return;
-        if (pip.peer_id === disconnectedUser) return;
-        return <ShowVideo key={pip.peer_id} pip={pip} />;
-      })}
-    </div>
+    <>
+      <MainHeader>
+        <button onClick={onShareMyScreen}>화면공유</button>
+      </MainHeader>
+      <Main>
+        <MainLeft>
+          <MainVideos>
+            <ShowLocalVideo key={localPip.peer_id} pip={localPip} />
+            {pips.map((pip) => {
+              if (localPip.peer_id === pip.peer_id) return;
+              if (pip.peer_id === disconnectedUser) return;
+              return <ShowVideo key={pip.peer_id} pip={pip} />;
+            })}
+          </MainVideos>
+        </MainLeft>
+        <MainRight>
+          <ChatHeader>채팅</ChatHeader>
+        </MainRight>
+      </Main>
+    </>
+    // <div>
+    //   <div>
+    //     <CopyToClipboard text={document.location.href}>
+    //       <button onClick={onCopyToClipboard}>초대</button>
+    //     </CopyToClipboard>
+    //     <form onSubmit={onSubmitMessage}>
+    //       <input
+    //         type="text"
+    //         name="textMessage"
+    //         onChange={onChangeTextMessage}
+    //         ref={textMessageRef}
+    //       />
+    //       <button type="submit">전송</button>
+    //     </form>
+    //   </div>
+
+    //   {/* 나만 보여주기 */}
+    // <ShowLocalVideo key={localPip.peer_id} pip={localPip} />
+    // <button onClick={onShareMyScreen}>화면공유</button>
+    //   <button onClick={onOutRoom}>방나가기</button>
+    //   {/* 다른사람도 보여주느곳ㄴ */}
+
+    // {pips.map((pip) => {
+    //   if (localPip.peer_id === pip.peer_id) return;
+    //   if (pip.peer_id === disconnectedUser) return;
+    //   return <ShowVideo key={pip.peer_id} pip={pip} />;
+    // })}
+    // </div>
   );
 };
 
 export default Room2;
+// main, mainheader mainleft mainvideos mainright chatheader
+const Main = styled.div`
+  height: 100vh;
+  display: flex;
+`;
 
-// navigator.mediaDevices.getUserMedia(
-//   { video: true, audio: true },
-//   (stream) => {
-//     const call = peer.call("another-peers-id", stream);
-//     call.on("stream", (remoteStream) => {
-//       // Show stream in some <video> element.
-//     });
-//   },
-//   (err) => {
-//     console.error("Failed to get local stream", err);
-//   }
-// );
+const MainLeft = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 0.8;
+`;
+
+const MainRight = styled.div`
+  flex: 0.2;
+`;
+
+const MainVideos = styled.div`
+  flex-grow: 1;
+  flex-wrap: wrap;
+  background-color: black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const MainHeader = styled.div`
+  /* display: block; */
+  background-color: green;
+`;
+
+const ChatHeader = styled.div`
+  width: 100px;
+  height: 20px;
+  background-color: red;
+`;

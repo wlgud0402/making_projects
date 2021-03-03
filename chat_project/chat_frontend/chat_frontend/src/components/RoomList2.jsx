@@ -7,6 +7,7 @@ import io from "socket.io-client";
 import Header from "./Header";
 import Footer from "./Footer";
 import styled from "styled-components";
+import onair from "../assets/onair.png";
 
 let socket;
 const RoomList2 = () => {
@@ -84,55 +85,41 @@ const RoomList2 = () => {
   const renderRoom = (room) => {
     if (room.status === "ACTIVE") {
       return (
-        <Card
-          key={room.number}
-          border="dark"
-          style={{ width: "18rem" }}
-          className="box"
-        >
-          <Card.Header>{room.number}번방</Card.Header>
-          <Card.Body>
-            <Card.Title>방제목: {room.name}</Card.Title>
-            <button id={room.number} onClick={onClickIntoRoom}>
-              들어가기
+        <ActiveCardBox key={room.number}>
+          <RoomNumberImg>
+            <StyleRoomNumber>{room.number}</StyleRoomNumber>
+            <img src={onair} alt={"onair"} />
+          </RoomNumberImg>
+          <StyleRoomName>{room.name}</StyleRoomName>
+          <ButtonBox>
+            <button onClick={onClickIntoRoom} id={room.number}>
+              참여하기
             </button>
-          </Card.Body>
-        </Card>
+          </ButtonBox>
+        </ActiveCardBox>
       );
     } else {
       return (
-        <CardBox>
-          <Card>{room.number}번방</Card>
-
-          <p>{room.number}번방</p>
-          <p>방제목 {room.name}</p>
-          <button>만들기</button>
-          {/* <Card
-            key={room.number}
-            border="dark"
-            style={{ width: "18rem" }}
-            className="box"
-          >
-            <Card.Header>{room.number}번방</Card.Header>
-            <Card.Body>
-              <Card.Title>방제목: {room.name}</Card.Title>
-              <button id={room.number} onClick={onClickMakeRoom}>
-                만들기
-              </button>
-            </Card.Body>
-          </Card> */}
-        </CardBox>
+        <IdleCardBox key={room.number}>
+          <RoomNumberImg>
+            <StyleRoomNumber>{room.number}</StyleRoomNumber>
+          </RoomNumberImg>
+          <StyleRoomName>비어있는 방입니다</StyleRoomName>
+          <ButtonBox>
+            <button onClick={onClickMakeRoom} id={room.number}>
+              시작하기
+            </button>
+          </ButtonBox>
+        </IdleCardBox>
       );
     }
-    // return (
-    // );
   };
 
   return (
     <>
       <Header />
       <Box>
-        <h1>전체방목록</h1>
+        <h1>현재 방목록</h1>
         <ContentBox>{roomList.map(renderRoom)}</ContentBox>
       </Box>
       <Footer />
@@ -141,6 +128,19 @@ const RoomList2 = () => {
 };
 
 export default RoomList2;
+
+const ButtonBox = styled.div`
+  text-align: center;
+  transition: all 0.9s ease-in;
+  button {
+    font-size: 25px;
+    border-radius: 10%;
+    outline: none;
+    &:hover {
+      font-size: 30px;
+    }
+  }
+`;
 
 const Box = styled.div`
   width: 100%;
@@ -159,7 +159,7 @@ const ContentBox = styled.div`
   flex-wrap: wrap;
 `;
 
-const CardBox = styled.div`
+const IdleCardBox = styled.div`
   position: relative;
   top: 0px;
   left: 0px;
@@ -170,55 +170,63 @@ const CardBox = styled.div`
   background-color: rgb(73, 73, 74);
   opacity: 0.5;
   color: rgb(255, 255, 255);
-  display: flex;
+  display: block;
   justify-content: center;
   align-items: center;
   padding: 10px;
   margin-bottom: 25px;
+  transition: all 0.2s ease-in;
+  &:hover {
+    opacity: 0.8;
+  }
 `;
-// position: relative;
-// top: 0px;
-// left: 0px;
-// width: 100%;
-// height: 200px;
-// border-radius: 10px;
-// transition: all 0.2s ease-in 0s;
-// background-color: rgb(73, 73, 74);
-// opacity: 0.3;
-// color: rgb(255, 255, 255);
-// display: flex;
-// justify-content: center;
-// align-items: center;
-// padding: 10px;
-// margin-bottom: 25px;
 
-// const Card = styled.div`
-//   width: 18rem;
-//   position: relative;
-//   width: 33%;
-//   display: flex;
-//   opacity: 1;
-//   transform: none;
-//   justify-content: center;
-//   position: relative;
-//   top: 0px;
-//   left: 0px;
-//   width: 100%;
-//   height: 200px;
-//   border-radius: 10px;
-//   transition: all 0.2s ease-in 0s;
-//   background-color: rgb(73, 73, 74);
-//   opacity: 0.3;
-//   color: rgb(255, 255, 255);
-//   align-items: center;
-//   padding: 10px;
-// `;
+const ActiveCardBox = styled.div`
+  position: relative;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 200px;
+  border-radius: 10px;
+  transition: all 0.2s ease-in 0s;
+  background-color: green;
+  opacity: 0.5;
+  color: rgb(255, 255, 255);
+  display: block;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  margin-bottom: 25px;
+  transition: all 0.2s ease-in;
+  &:hover {
+    opacity: 0.9;
+  }
+`;
 
-// width: 100%;
+const RoomNumberImg = styled.div`
+  text-align: center;
+  display: flex;
+`;
+
+const StyleRoomNumber = styled.div`
+  display: inline-block;
+  border: 3px solid;
+  font-size: 36px;
+  font-weight: bold;
+  margin-right: 20px;
+  border-radius: 30%;
+  padding: 0px 7px;
+`;
+
+const StyleRoomName = styled.div`
+  font-size: 30px;
+`;
+
+/* // width: 100%;
 // height: 100%;
 // display: flex;
 // flex-direction: column;
 // -webkit-box-align: center;
 // align-items: center;
 // background-color: rgb(255, 255, 255);
-// margin-bottom: 30px;
+// margin-bottom: 30px; */

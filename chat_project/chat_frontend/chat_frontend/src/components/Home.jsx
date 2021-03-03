@@ -5,6 +5,7 @@ import { useHistory } from "react-router-dom";
 import Header from "./Header";
 import Footer from "./Footer";
 import Carousel from "react-bootstrap/Carousel";
+import styled from "styled-components";
 
 const Home = () => {
   // const [userInfo, setUserInfo] = useState("");
@@ -93,7 +94,7 @@ const Home = () => {
           <h1 className="font-weight-light">지금 당장 회의를 시작해 보세요!</h1>
           <p className="lead">
             빠르고 간편한 서비스, 채팅, 화면공유등을 시험해 보러 가시겠습니까?
-            <button onClick={onClickStartMeeting}>미팅시작</button>
+            <StartButton onClick={onClickStartMeeting}>미팅시작</StartButton>
           </p>
         </div>
       </section>
@@ -103,3 +104,18 @@ const Home = () => {
 };
 
 export default Home;
+
+const StartButton = styled.button`
+  outline: none;
+  color: white;
+  background-color: gray;
+  margin-left: 10px;
+  border: 1px solid;
+  border-radius: 30px;
+  transition: all 0.1s ease-in;
+
+  &:hover {
+    background-color: black;
+    font-weight: bold;
+  }
+`;
