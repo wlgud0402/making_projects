@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import "./ShowVideo.css";
+import "./ShowLocalVideo.css";
 import onair from "../assets/onair.png";
 
 const ShowLocalVideo = (pip) => {
@@ -30,8 +30,6 @@ const ShowLocalVideo = (pip) => {
   useEffect(() => {
     videoRef.current.srcObject = pip.pip.stream;
     videoRef.current.muted = true;
-    videoRef.current.msHorizontalMirror = true;
-    console.log("내비디오 스트림", videoRef.current.srcObject);
   }, [pip.pip.stream]);
 
   //영상멈추기
@@ -53,7 +51,6 @@ const ShowLocalVideo = (pip) => {
     const enabled = videoRef.current.srcObject.getAudioTracks()[0].enabled;
     if (enabled) {
       videoRef.current.srcObject.getAudioTracks()[0].enabled = false;
-      videoRef.current = <img src={onair} alt={"onair"} />;
       // setUnmuteButton();
     } else {
       // setMuteButton();
@@ -78,7 +75,7 @@ const ShowLocalVideo = (pip) => {
 
   return (
     <div>
-      <video controls ref={videoRef} autoPlay />
+      <video className="localVideo" ref={videoRef} autoPlay />
       <button onClick={playStop}>영상</button>
       <button onClick={muteUnmute}>소리</button>
       {/* <video id="video" ref={shareVideoRef} autoPlay></video> */}

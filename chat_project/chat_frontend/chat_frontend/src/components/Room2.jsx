@@ -8,6 +8,12 @@ import io from "socket.io-client";
 import ShowLocalVideo from "./ShowLocalVideo";
 import styled from "styled-components";
 import { useHistory } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faMicrophone } from "@fortawesome/free-solid-svg-icons";
+import { faVideo } from "@fortawesome/free-solid-svg-icons";
+import { faDesktop } from "@fortawesome/free-solid-svg-icons";
+import { faUsers } from "@fortawesome/free-solid-svg-icons";
+import { faDoorOpen } from "@fortawesome/free-solid-svg-icons";
 
 const receivedPeerIds = new Set();
 ////////////////////////////////
@@ -26,6 +32,7 @@ const Room2 = ({ location }) => {
   const ENDPOINT = "http://localhost:5000";
 
   const [roomNumber, setRoomNumber] = useState("");
+  const [roomName, setRoomName] = useState("");
   const [localPip, setLocalPip] = useState([]);
   const [pips, setPips] = useState([]);
 
@@ -53,6 +60,7 @@ const Room2 = ({ location }) => {
           `http://localhost:8000/api/chat/getroom/?uuid=${uuid}`
         );
         setRoomNumber(room_data.data.room_id);
+        setRoomName(room_data.data.room_name);
 
         //방에 들어왔다는것을 의미합니다. => 방번호를 보냅니다.
         socket.emit("join-room", room_data.data.room_id, peer.id);
@@ -317,7 +325,47 @@ const Room2 = ({ location }) => {
   return (
     <>
       <MainHeader>
-        <button onClick={onShareMyScreen}>화면공유</button>
+        <div className="headerRoomNumber">{roomNumber}</div>
+        <div className="headerRoomName">{roomName}</div>
+        <div>
+          <CopyToClipboard text={document.location.href}>
+            <FontAwesomeIcon
+              className="inviteIcon headerIcon"
+              icon={faUsers}
+              size="2x"
+              onClick={onCopyToClipboard}
+            />
+          </CopyToClipboard>
+        </div>
+        <div>
+          <FontAwesomeIcon
+            className="screenShareIcon headerIcon"
+            icon={faDesktop}
+            size="2x"
+            onClick={onShareMyScreen}
+          />
+        </div>
+        <div>
+          <FontAwesomeIcon
+            className="videoPlayStopIcon headerIcon"
+            icon={faVideo}
+            size="2x"
+          />
+        </div>
+        <div>
+          <FontAwesomeIcon
+            className="muteUnMuteIcon headerIcon"
+            icon={faMicrophone}
+            size="2x"
+          />
+        </div>
+        <div>
+          <FontAwesomeIcon
+            className="getOutRoom headerIcon"
+            icon={faDoorOpen}
+            size="2x"
+          />
+        </div>
       </MainHeader>
       <Main>
         <MainLeft>
@@ -337,9 +385,9 @@ const Room2 = ({ location }) => {
     </>
     // <div>
     //   <div>
-    //     <CopyToClipboard text={document.location.href}>
-    //       <button onClick={onCopyToClipboard}>초대</button>
-    //     </CopyToClipboard>
+    // <CopyToClipboard text={document.location.href}>
+    //   <button onClick={onCopyToClipboard}>초대</button>
+    // </CopyToClipboard>
     //     <form onSubmit={onSubmitMessage}>
     //       <input
     //         type="text"
@@ -394,7 +442,66 @@ const MainVideos = styled.div`
 
 const MainHeader = styled.div`
   /* display: block; */
-  background-color: green;
+  background-color: #1c1e20;
+  display: flex;
+
+  .headerIcon {
+    color: #d2d2d2;
+    cursor: pointer;
+    &:hover {
+      opacity: 0.5;
+    }
+  }
+
+  .headerRoomNumber {
+    font-size: 27px;
+    border: 1px solid;
+    border-radius: 68%;
+    background-color: white;
+    padding: 2px 15px 2px 15px;
+  }
+
+  .headerRoomName {
+    font-size: 27px;
+    font-weight: bold;
+    margin-left: 10px;
+    color: white;
+  }
+
+  /* .screenShareIcon {
+    color: blue;
+    background-color: white;
+    cursor: pointer;
+    &:hover {
+      opacity: 0.5;
+    }
+  }
+
+  .videoPlayStopIcon {
+    color: yello;
+    background-color: white;
+    cursor: pointer;
+    &:hover {
+      opacity: 0.5;
+    }
+  }
+
+  .muteUnMuteIcon {
+    color: purple;
+    background-color: white;
+    cursor: pointer;
+    &:hover {
+      opacity: 0.5;
+    }
+  }
+  .inviteIcon {
+    color: orange;
+    background-color: white;
+    cursor: pointer;
+    &:hover {
+      opacity: 0.5;
+    }
+  } */
 `;
 
 const ChatHeader = styled.div`
