@@ -19,7 +19,7 @@ import { faDoorOpen } from "@fortawesome/free-solid-svg-icons";
 const receivedPeerIds = new Set();
 ////////////////////////////////
 let socket;
-
+// let chattings = [];
 const Room2 = ({ location }) => {
   let history = useHistory();
   let displayMediaOptions = {
@@ -31,7 +31,7 @@ const Room2 = ({ location }) => {
 
   let peerRef = useRef("");
   const ENDPOINT = "http://localhost:5000";
-
+  const [chattings, setChattings] = useState([]);
   const [roomNumber, setRoomNumber] = useState("");
   const [roomName, setRoomName] = useState("");
   const [localPip, setLocalPip] = useState([]);
@@ -68,19 +68,16 @@ const Room2 = ({ location }) => {
 
         socket.on("createMessage", (jsonData) => {
           if (jsonData.peer_id !== peer.id) {
-            console.log(
-              "닉네임: ",
-              jsonData.nickname,
-              "메시지내용: ",
-              jsonData.message
-            );
-            $("ul").append(
-              `<div className="otherMessage"><li>${jsonData.nickname}</li><li>${jsonData.message}</li></div>`
-            );
-            // document
-            //   .getElementsByClassName(".ul")
-            //   .append(`<li>${jsonData.nickname}</li>`);
-            // console.log(document.getElementsByClassName(".ul"));
+            // chattings.push([jsonData.nickname, jsonData.message]);
+            const new_chat = [jsonData.nickname, jsonData.message];
+            console.log(chattings);
+            setChattings((chatting) => {
+              const newChattings = [...chatting, new_chat];
+              return newChattings;
+            });
+            // $("ul").append(
+            //   `<div class="otherMessage"><li>${jsonData.nickname}</li><li>${jsonData.message}</li></div>`
+            // );
           }
         });
 
@@ -119,13 +116,6 @@ const Room2 = ({ location }) => {
           const guest_nickname = await prompt(
             "사용하실 닉네임을 입력해주세요."
           );
-          console.log(
-            "room_data.data.room_id",
-            room_data.data.room_id,
-            guest_nickname,
-            peer.id,
-            uuid
-          );
           const guest_data = await axios.post(
             "http://localhost:8000/api/user/peer/guest",
             {
@@ -163,18 +153,7 @@ const Room2 = ({ location }) => {
 
         //다른유저가 보낸 콜을 받을시에
         peer.on("call", function (call) {
-          console.log(
-            "call을 받았다!!! 나도 뭔가를 전해주자 myStream",
-            myStream
-          );
           call.on("stream", async (otherStream) => {
-            console.log(
-              "스트림받음call.on otherstream1111111",
-              otherStream,
-              call
-            );
-            console.log("call.peer: 연락을 받은 유저의 peer", call.peer);
-
             const user_data = await axios.get(
               `http://localhost:8000/api/user/?peer_id=${call.peer}`
             );
@@ -246,14 +225,31 @@ const Room2 = ({ location }) => {
         });
       });
     })();
-    return function cleanup() {
-      console.log("클린펑션실행");
-      socket.emit("user-outroom", {
-        room_id: "roomNumber",
-        peer_id: "localPip.peer_id",
-      });
+    return () => {
+      console.log("기 가즈아ㅏㅏㅏㅏ");
+      socket.off();
       // socket.close();
     };
+    // return async function cleanup() {
+    //   console.log("클린펑션실행");
+    //   const room_data = await axios.get(
+    //     `http://localhost:8000/api/chat/getroom/?uuid=${uuid}`
+    //   );
+    //   let user_token = localStorage.getItem("user_token");
+    //   let info = jwt_decode(user_token);
+
+    //   const user_data = await axios.get(
+    //     `http://localhost:8000/api/user/?user_id=${info.user_id}`
+    //   );
+
+    //   socket.close();
+
+    //   socket.emit("user-outroom", {
+    //     room_id: room_data.data.room_id,
+    //     peer_id: user_data.data.peer_id,
+    //   });
+    //   // socket.close();
+    // };
   }, []);
 
   function cleanup() {
@@ -273,7 +269,15 @@ const Room2 = ({ location }) => {
       room_id: roomNumber,
       peer_id: localPip.peer_id,
     });
-    $("ul").append(`<div className="myMessage"><li>${textMessage}</li></div>`);
+    const new_chat = ["own", textMessage];
+    // console.log(chattings);
+    setChattings((chatting) => {
+      const newChattings = [...chatting, new_chat];
+      return newChattings;
+    });
+    // chattings.push(["own", textMessage]);
+    // console.log(chattings);
+    // $("ul").append(`<div class="myMessage"><li>${textMessage}</li></div>`);
 
     setTextMessage("");
     textMessageRef.current.value = "";
@@ -284,7 +288,7 @@ const Room2 = ({ location }) => {
   };
 
   const onOutRoom = (e) => {
-    socket.emit("user-outroom");
+    socket.emit("user-outroom", localPip);
     history.push("/");
     // socket.close(1005, "user clicked outRoomButton");
   };
@@ -297,8 +301,6 @@ const Room2 = ({ location }) => {
     const room_data = await axios.get(
       `http://localhost:8000/api/chat/getroom/?uuid=${uuid}`
     );
-    console.log("room_data.data: 내 화면공유를 위해1", room_data.data);
-
     const peer_data = await axios.get(
       `http://localhost:8000/api/user/peerbyroom/${room_data.data.room_id}`
     );
@@ -381,6 +383,7 @@ const Room2 = ({ location }) => {
               className="getOutRoom headerIcon"
               icon={faDoorOpen}
               size="2x"
+              onClick={onOutRoom}
             />
             <p className="arrow_box">방 나가기</p>
           </div>
@@ -401,7 +404,28 @@ const Room2 = ({ location }) => {
         <MainRight>
           <ChatHeader>채팅</ChatHeader>
           <ChatBody>
-            <ul className="messages"></ul>
+            <ul className="messages">
+              {chattings.map((chat) => {
+                if (chat[0] === "own") {
+                  return (
+                    <div className="myOwnChatBox">
+                      <li className="myOwnChat">{chat[1]}</li>
+                    </div>
+                  );
+                } else {
+                  return (
+                    <>
+                      <OtherUserNickname>
+                        <li>{chat[0]}</li>
+                      </OtherUserNickname>
+                      <div className="otherChatBox">
+                        <li className="otherChat">{chat[1]}</li>
+                      </div>
+                    </>
+                  );
+                }
+              })}
+            </ul>
           </ChatBody>
           <ChatContainer>
             {/* <textarea></textarea> */}
@@ -419,39 +443,16 @@ const Room2 = ({ location }) => {
         </MainRight>
       </Main>
     </>
-    // <div>
-    //   <div>
-    // <form onSubmit={onSubmitMessage}>
-    //   <input
-    //     type="text"
-    //     name="textMessage"
-    //     onChange={onChangeTextMessage}
-    //     ref={textMessageRef}
-    //   />
-    //   <button type="submit">전송</button>
-    // </form>
-    //   </div>
-
-    //   {/* 나만 보여주기 */}
-    // <ShowLocalVideo key={localPip.peer_id} pip={localPip} />
-    // <button onClick={onShareMyScreen}>화면공유</button>
-    //   <button onClick={onOutRoom}>방나가기</button>
-    //   {/* 다른사람도 보여주느곳ㄴ */}
-
-    // {pips.map((pip) => {
-    //   if (localPip.peer_id === pip.peer_id) return;
-    //   if (pip.peer_id === disconnectedUser) return;
-    //   return <ShowVideo key={pip.peer_id} pip={pip} />;
-    // })}
-    // </div>
   );
 };
 
 export default Room2;
 // main, mainheader mainleft mainvideos mainright chatheader
+
 const Main = styled.div`
   height: 100vh;
   display: flex;
+  padding-top: 54px;
 `;
 
 const MainLeft = styled.div`
@@ -482,11 +483,15 @@ const MainHeader = styled.div`
   display: flex;
   padding: 4px;
   align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
 
   .MainHeaderControls {
     display: flex;
     flex: 0.2;
-    justify-content: space-evenly;
+    justify-content: space-between;
 
     .Controldiv {
       position: relative;
@@ -608,53 +613,61 @@ const ChatHeader = styled.div`
   padding: 15px;
   font-size: 21px;
 `;
-
+//채팅관련
 const ChatBody = styled.div`
   flex-grow: 1;
+  overflow-y: scroll;
+  /* .myMessage {
+    color: white;
+    font-size: 24px;
+  } */
 
   ul {
     margin: 0;
     padding: 0;
     list-style: none;
     padding: 0px 10px 0px 10px;
-
-    .myMessage {
+    .otherChatBox {
       display: flex;
-      justify-content: flex-end;
-      li {
+      color: black;
+      justify-content: flex-start;
+
+      /* .otherUserNickname {
+        color: white;
+      } */
+
+      .otherChat {
         background-color: darkgray;
         font-weight: bold;
-        border: 1px solid;
+        /* border: 1px solid darkgray; */
         border-radius: 50px;
         padding: 0px 10px 0px 10px;
+        margin-bottom: 5px;
       }
     }
 
-    .myMessage {
+    .myOwnChatBox {
       display: flex;
       justify-content: flex-end;
-      li {
-        background-color: darkgray;
+      color: black;
+
+      .myOwnChat {
+        margin-bottom: 5px;
+        background-color: lawngreen;
         font-weight: bold;
-        border: 1px solid;
+        /* border: 1px solid lawngreen; */
         border-radius: 50px;
         padding: 0px 10px 0px 10px;
       }
     }
   }
-
-  /* ul {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    .myMessage {
-      display: flex;
-      justify-content: flex-end;
-      color: white;
-      padding: 10px;
-    }
-  } */
 `;
+const OtherUserNickname = styled.div`
+  color: white;
+  font-size: 12px;
+  margin-bottom: 2px;
+`;
+
 const ChatContainer = styled.div`
   padding: 22px 12px;
   display: flex;

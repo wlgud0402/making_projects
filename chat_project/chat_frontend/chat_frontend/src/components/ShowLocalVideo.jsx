@@ -3,13 +3,6 @@ import "./ShowLocalVideo.css";
 import onair from "../assets/onair.png";
 
 const ShowLocalVideo = (pip) => {
-  let displayMediaOptions = {
-    video: {
-      cursor: "always",
-    },
-    audio: true,
-  };
-
   const shareVideoRef = useRef(null);
   // useEffect(() => {
   //   (async () => {
@@ -58,29 +51,12 @@ const ShowLocalVideo = (pip) => {
     }
   };
 
-  // const onScreenShare = async (e) => {
-  //   try {
-  //     videoRef.current.srcObject = await navigator.mediaDevices.getDisplayMedia(
-  //       displayMediaOptions
-  //     );
-  //     console.log("화면공유를 시작합니다");
-  //   } catch (err) {
-  //     console.log("에러: ", err);
-  //   }
-  // };
-
-  // const onStopScreenShare = (e) => {
-  //   console.log("공유 중지하기");
-  // };
-
   return (
     <div>
       <video className="localVideo" ref={videoRef} autoPlay />
-      {/* <button onClick={playStop}>영상</button>
-      <button onClick={muteUnmute}>소리</button> */}
+      {/* <button onClick={playStop}>영상</button> */}
+      {/* <button onClick={muteUnmute}>소리</button> */}
       {/* <video id="video" ref={shareVideoRef} autoPlay></video> */}
-      {/* <button onClick={onScreenShare}>화면공유</button> */}
-      {/* <button onClick={onStopScreenShare}>공유 멈춤</button> */}
       <h6>{pip.pip.nickname}</h6>
     </div>
   );

@@ -8,6 +8,8 @@ import Header from "./Header";
 import Footer from "./Footer";
 import styled from "styled-components";
 import onair from "../assets/onair.png";
+import onair2 from "../assets/onair2.png";
+import onair3 from "../assets/onair3.png";
 
 let socket;
 const RoomList2 = () => {
@@ -98,7 +100,8 @@ const RoomList2 = () => {
           </ButtonBox>
         </ActiveCardBox>
       );
-    } else {
+    }
+    if (room.status === "IDLE") {
       return (
         <IdleCardBox key={room.number}>
           <RoomNumberImg>
@@ -111,6 +114,22 @@ const RoomList2 = () => {
             </button>
           </ButtonBox>
         </IdleCardBox>
+      );
+    }
+    if (room.status === "CLEANING") {
+      return (
+        <CleaningCardBox key={room.number}>
+          <RoomNumberImg>
+            <StyleRoomNumber>{room.number}</StyleRoomNumber>
+          </RoomNumberImg>
+          <progress></progress>
+          <StyleRoomName>방을 정리중입니다....</StyleRoomName>
+          <ButtonBox>
+            <button onClick={onClickIntoRoom} id={room.number}>
+              참여하기
+            </button>
+          </ButtonBox>
+        </CleaningCardBox>
       );
     }
   };
@@ -159,6 +178,28 @@ const ContentBox = styled.div`
   flex-wrap: wrap;
 `;
 
+const ActiveCardBox = styled.div`
+  position: relative;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 200px;
+  border-radius: 10px;
+  transition: all 0.2s ease-in 0s;
+  background-color: green;
+  opacity: 0.5;
+  color: rgb(255, 255, 255);
+  display: block;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  margin-bottom: 25px;
+  transition: all 0.2s ease-in;
+  &:hover {
+    opacity: 0.9;
+  }
+`;
+
 const IdleCardBox = styled.div`
   position: relative;
   top: 0px;
@@ -181,7 +222,7 @@ const IdleCardBox = styled.div`
   }
 `;
 
-const ActiveCardBox = styled.div`
+const CleaningCardBox = styled.div`
   position: relative;
   top: 0px;
   left: 0px;
@@ -189,7 +230,7 @@ const ActiveCardBox = styled.div`
   height: 200px;
   border-radius: 10px;
   transition: all 0.2s ease-in 0s;
-  background-color: green;
+  background-color: blueviolet;
   opacity: 0.5;
   color: rgb(255, 255, 255);
   display: block;
@@ -198,6 +239,11 @@ const ActiveCardBox = styled.div`
   padding: 10px;
   margin-bottom: 25px;
   transition: all 0.2s ease-in;
+  progress {
+    width: 242px;
+    height: 41px;
+  }
+
   &:hover {
     opacity: 0.9;
   }
