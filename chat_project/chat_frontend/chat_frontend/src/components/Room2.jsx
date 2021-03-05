@@ -5,13 +5,14 @@ import jwt_decode from "jwt-decode";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import ShowVideo from "./ShowVideo";
 import io from "socket.io-client";
-import ShowLocalVideo from "./ShowLocalVideo";
+import Clock from "react-live-clock";
 import styled from "styled-components";
-import $ from "jquery";
 import { useHistory } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMicrophone } from "@fortawesome/free-solid-svg-icons";
+import { faMicrophoneSlash } from "@fortawesome/free-solid-svg-icons";
 import { faVideo } from "@fortawesome/free-solid-svg-icons";
+import { faVideoSlash } from "@fortawesome/free-solid-svg-icons";
 import { faDesktop } from "@fortawesome/free-solid-svg-icons";
 import { faUsers } from "@fortawesome/free-solid-svg-icons";
 import { faDoorOpen } from "@fortawesome/free-solid-svg-icons";
@@ -21,6 +22,7 @@ const receivedPeerIds = new Set();
 let socket;
 // let chattings = [];
 const Room2 = ({ location }) => {
+  const videoRef = useRef(null);
   let history = useHistory();
   let displayMediaOptions = {
     video: {
@@ -31,17 +33,38 @@ const Room2 = ({ location }) => {
 
   let peerRef = useRef("");
   const ENDPOINT = "http://localhost:5000";
+  const chatBodyRef = useRef();
   const [chattings, setChattings] = useState([]);
   const [roomNumber, setRoomNumber] = useState("");
   const [roomName, setRoomName] = useState("");
   const [localPip, setLocalPip] = useState([]);
   const [pips, setPips] = useState([]);
+  const [userNickname, setUserNickname] = useState("");
+  const [videoState, setVideoState] = useState("");
+  const [soundState, setSoundState] = useState("");
+
+  //채팅이 쳐진후 스크롤을 가장 아래로 => chattings.length가 변하면 실행
+  useEffect(() => {
+    const chatBodyElement = chatBodyRef.current;
+    chatBodyElement.scrollTop = chatBodyElement.scrollHeight;
+  }, [chattings.length]);
+  // const scrollToBottom = () => {
+  //   const chatBodyElement = chatBodyRef.current;
+  //   chatBodyElement.scrollTop = chatBodyElement.scrollHeight;
+  //   console.log(chatBodyRef);
+  // };
 
   const onCopyToClipboard = (e) => {
     alert("초대주소가 클립보드에 저장되었습니다.");
   };
   let uuid = document.location.href.split("/room2/")[1];
   const [disconnectedUser, setDisconnectedUser] = useState("");
+
+  // useEffect(() => {
+  //   return () => {
+  //     console.log("...");
+  //   };
+  // }, []);
 
   useEffect(() => {
     (async () => {
@@ -51,7 +74,6 @@ const Room2 = ({ location }) => {
         path: "/",
       });
       peerRef.current = peer;
-      // var socket = io('http://localhost:5000', { transport : ['websocket'] });
       socket = io(ENDPOINT, {
         transports: ["websocket", "polling", "flashsocket"],
       });
@@ -62,46 +84,39 @@ const Room2 = ({ location }) => {
         );
         setRoomNumber(room_data.data.room_id);
         setRoomName(room_data.data.room_name);
+        setVideoState(true);
+        setSoundState(true);
 
         //방에 들어왔다는것을 의미합니다. => 방번호를 보냅니다.
         socket.emit("join-room", room_data.data.room_id, peer.id);
 
         socket.on("createMessage", (jsonData) => {
           if (jsonData.peer_id !== peer.id) {
-            // chattings.push([jsonData.nickname, jsonData.message]);
             const new_chat = [jsonData.nickname, jsonData.message];
-            console.log(chattings);
             setChattings((chatting) => {
               const newChattings = [...chatting, new_chat];
               return newChattings;
             });
-            // $("ul").append(
-            //   `<div class="otherMessage"><li>${jsonData.nickname}</li><li>${jsonData.message}</li></div>`
-            // );
           }
         });
 
-        ////////////여기 할차례 => index.js에서 발생시킨 user-had-left
-        //가 일어나면 여기서 로직을 실행함
-        //pips의 pip와 전부 비교해서 pip.peer_id 가 내가 받은
-        //peer_id와 같을경우 삭제하려고 했지만 pips가 빈배열로 나온다 ㅠ
         socket.on("user-had-left", (room_id, peer_id) => {
           setDisconnectedUser(peer_id);
-          console.log(room_id, "번방의", peer_id, "가갔욤");
-          console.log("나가기전: pips ", pips);
           setPips((prevPips) => {
             const nextPips = pips.filter((pip) => pip.peer_id !== peer_id);
             return nextPips;
           });
         });
 
-        socket.on("user-disconnected", () => {
-          console.log("연결이 끊킨 socket: ", socket);
-        });
+        // socket.on("user-disconnected", () => {
+        //   console.log("연결이 끊킨 socket: ", socket);
+        // });
 
         if (localStorage.getItem("user_token")) {
           let user_token = localStorage.getItem("user_token");
           let info = jwt_decode(user_token);
+
+          setUserNickname(info.nickname);
 
           const new_user = await axios.post(
             "http://localhost:8000/api/user/peer/",
@@ -113,9 +128,7 @@ const Room2 = ({ location }) => {
             }
           );
         } else {
-          const guest_nickname = await prompt(
-            "사용하실 닉네임을 입력해주세요."
-          );
+          const guest_nickname = prompt("사용하실 닉네임을 입력해주세요.");
           const guest_data = await axios.post(
             "http://localhost:8000/api/user/peer/guest",
             {
@@ -138,6 +151,9 @@ const Room2 = ({ location }) => {
           audio: true,
         });
         myStream.muted = true;
+
+        videoRef.current.srcObject = myStream;
+        videoRef.current.muted = true;
 
         let user_token = localStorage.getItem("user_token");
         let info = jwt_decode(user_token);
@@ -166,7 +182,6 @@ const Room2 = ({ location }) => {
             };
             if (receivedPeerIds.has(call.peer)) {
               if (call.metadata) {
-                console.log("화면공유 or 화면공유 종료");
                 setPips((prevPips) => {
                   const samePeerRemovedPips = pips.filter(
                     (pip) => pip.peer_id !== call.peer
@@ -174,8 +189,6 @@ const Room2 = ({ location }) => {
                   const newPips = [...samePeerRemovedPips, pip];
                   return newPips;
                 });
-              } else {
-                console.log("아무런 동작도 하지 않습니다.");
               }
             } else {
               receivedPeerIds.add(call.peer);
@@ -196,13 +209,6 @@ const Room2 = ({ location }) => {
 
           // 다른사람의 answer로 stream을 받아옵니다 ㅎㅎ
           call.on("stream", async (otherStream) => {
-            console.log(
-              "call.answer를 통해 다른사람의 스트림을 받아옴 otherStream: 22222",
-              otherStream,
-              "peerdata.peer_id::::",
-              peerdata.peer_id
-            );
-
             const user_data = await axios.get(
               `http://localhost:8000/api/user/?peer_id=${peerdata.peer_id}`
             );
@@ -226,36 +232,9 @@ const Room2 = ({ location }) => {
       });
     })();
     return () => {
-      console.log("기 가즈아ㅏㅏㅏㅏ");
-      socket.off();
-      // socket.close();
+      socket.close();
     };
-    // return async function cleanup() {
-    //   console.log("클린펑션실행");
-    //   const room_data = await axios.get(
-    //     `http://localhost:8000/api/chat/getroom/?uuid=${uuid}`
-    //   );
-    //   let user_token = localStorage.getItem("user_token");
-    //   let info = jwt_decode(user_token);
-
-    //   const user_data = await axios.get(
-    //     `http://localhost:8000/api/user/?user_id=${info.user_id}`
-    //   );
-
-    //   socket.close();
-
-    //   socket.emit("user-outroom", {
-    //     room_id: room_data.data.room_id,
-    //     peer_id: user_data.data.peer_id,
-    //   });
-    //   // socket.close();
-    // };
   }, []);
-
-  function cleanup() {
-    console.log("디스이즈 클린업 펑션");
-    // socket.emit("user-outroom");
-  }
 
   //메시지 관련
   const textMessageRef = useRef();
@@ -270,14 +249,10 @@ const Room2 = ({ location }) => {
       peer_id: localPip.peer_id,
     });
     const new_chat = ["own", textMessage];
-    // console.log(chattings);
     setChattings((chatting) => {
       const newChattings = [...chatting, new_chat];
       return newChattings;
     });
-    // chattings.push(["own", textMessage]);
-    // console.log(chattings);
-    // $("ul").append(`<div class="myMessage"><li>${textMessage}</li></div>`);
 
     setTextMessage("");
     textMessageRef.current.value = "";
@@ -288,8 +263,9 @@ const Room2 = ({ location }) => {
   };
 
   const onOutRoom = (e) => {
-    socket.emit("user-outroom", localPip);
+    // socket.emit("user-outroom", localPip);
     history.push("/");
+    socket.close();
     // socket.close(1005, "user clicked outRoomButton");
   };
 
@@ -331,9 +307,37 @@ const Room2 = ({ location }) => {
     };
   };
 
-  //   this._peer.call(peerId, localScreenStream, {
-  //     metadata: JSON.stringify({ streamType: streamTypes.SCREEN }),
-  // });
+  const playStop = () => {
+    console.log("영상 멈춤, 재생");
+    const enabled = videoRef.current.srcObject.getVideoTracks()[0].enabled;
+    if (enabled) {
+      videoRef.current.srcObject.getVideoTracks()[0].enabled = false;
+      setVideoState(false);
+      console.log(videoState); //보이는 상태 true
+      // setPlayVideo(); 이미지변환
+    } else {
+      videoRef.current.srcObject.getVideoTracks()[0].enabled = true;
+      setVideoState(true);
+      console.log(videoState); //현재 안보이는 상태 false
+      // setStopVideo();
+    }
+  };
+
+  //음소거
+  const muteUnmute = () => {
+    console.log("소리, 음소거");
+    const enabled = videoRef.current.srcObject.getAudioTracks()[0].enabled;
+    if (enabled) {
+      videoRef.current.srcObject.getAudioTracks()[0].enabled = false;
+      setSoundState(false);
+      // setUnmuteButton();
+    } else {
+      // setMuteButton();
+      videoRef.current.srcObject.getAudioTracks()[0].enabled = true;
+      setSoundState(true);
+    }
+  };
+
   return (
     <>
       <MainHeader>
@@ -363,20 +367,51 @@ const Room2 = ({ location }) => {
             <p className="arrow_box">화면공유</p>
           </div>
           <div className="Controldiv">
-            <FontAwesomeIcon
-              className="videoPlayStopIcon headerIcon"
-              icon={faVideo}
-              size="2x"
-            />
-            <p className="arrow_box">카메라끄기</p>
+            {videoState === true ? (
+              <FontAwesomeIcon
+                className="videoPlayStopIcon headerIcon"
+                icon={faVideo}
+                size="2x"
+                onClick={playStop}
+              />
+            ) : (
+              <FontAwesomeIcon
+                className="videoPlayStopIcon headerIcon slashStyle"
+                icon={faVideoSlash}
+                size="2x"
+                onClick={playStop}
+              />
+            )}
+            {videoState === true ? (
+              <p className="arrow_box">카메라 끄기</p>
+            ) : (
+              <p className="arrow_box">카메라 켜기</p>
+            )}
           </div>
+
+          {/*  */}
+
           <div className="Controldiv">
-            <FontAwesomeIcon
-              className="muteUnMuteIcon headerIcon"
-              icon={faMicrophone}
-              size="2x"
-            />
-            <p className="arrow_box">마이크끄기</p>
+            {soundState === true ? (
+              <FontAwesomeIcon
+                className="muteUnMuteIcon headerIcon"
+                icon={faMicrophone}
+                size="2x"
+                onClick={muteUnmute}
+              />
+            ) : (
+              <FontAwesomeIcon
+                className="muteUnMuteIcon headerIcon slashStyle"
+                icon={faMicrophoneSlash}
+                size="2x"
+                onClick={muteUnmute}
+              />
+            )}
+            {soundState === true ? (
+              <p className="arrow_box">마이크 끄기</p>
+            ) : (
+              <p className="arrow_box">마이크 켜기</p>
+            )}
           </div>
           <div className="Controldiv">
             <FontAwesomeIcon
@@ -388,12 +423,23 @@ const Room2 = ({ location }) => {
             <p className="arrow_box">방 나가기</p>
           </div>
         </div>
+        <div className="clockDiv">
+          <Clock
+            className="clock"
+            format={"HH:mm"}
+            ticking={true}
+            timezone={"Asia/Seoul"}
+          />
+        </div>
       </MainHeader>
 
       <Main>
         <MainLeft>
           <MainVideos>
-            <ShowLocalVideo key={localPip.peer_id} pip={localPip} />
+            <div className="myVideo">
+              <div className="myNickname">{userNickname}</div>
+              <video className="localVideo" ref={videoRef} autoPlay />
+            </div>
             {pips.map((pip) => {
               if (localPip.peer_id === pip.peer_id) return;
               if (pip.peer_id === disconnectedUser) return;
@@ -403,7 +449,7 @@ const Room2 = ({ location }) => {
         </MainLeft>
         <MainRight>
           <ChatHeader>채팅</ChatHeader>
-          <ChatBody>
+          <ChatBody ref={chatBodyRef}>
             <ul className="messages">
               {chattings.map((chat) => {
                 if (chat[0] === "own") {
@@ -475,6 +521,28 @@ const MainVideos = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+
+  .localVideo {
+    transform: rotateY(180deg);
+    -webkit-transform: rotateY(180deg); /* Safari and Chrome */
+    -moz-transform: rotateY(180deg); /* Firefox */
+  }
+
+  .myNickname {
+    z-index: 10;
+    position: absolute;
+    color: white;
+    font-size: 23px;
+    font-weight: bold;
+  }
+
+  .otherNickname {
+    z-index: 10;
+    position: absolute;
+    color: white;
+    font-size: 23px;
+    font-weight: bold;
+  }
 `;
 
 const MainHeader = styled.div`
@@ -488,6 +556,18 @@ const MainHeader = styled.div`
   left: 0;
   width: 100%;
 
+  .clockDiv {
+    flex: 0.2;
+    color: white;
+    font-size: 31px;
+    font-weight: bold;
+
+    .clock {
+      float: right;
+      padding-right: 10px;
+    }
+  }
+
   .MainHeaderControls {
     display: flex;
     flex: 0.2;
@@ -496,6 +576,10 @@ const MainHeader = styled.div`
     .Controldiv {
       position: relative;
       display: inline-block;
+
+      .slashStyle {
+        color: red;
+      }
     }
   }
 

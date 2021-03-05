@@ -11,7 +11,6 @@ const googleLogin = async (accesstoken) => {
 };
 // let history = useHistory();
 const responseGoogle = async (response) => {
-  console.log(response.profileObj);
   let idx = response.profileObj.email.indexOf("@");
   let nickname = response.profileObj.email.substring(0, idx);
 

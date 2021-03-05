@@ -33,14 +33,22 @@ const RoomList2 = () => {
         const refreshRes = await axios.get(
           "http://localhost:8000/api/chat/room/"
         );
-        setRoomList(refreshRes.data);
-        console.log("리프레시데이터", refreshRes.data);
+        setRoomList(() => refreshRes.data);
+        console.log(refreshRes.data.map((v) => v.status));
+        console.log("시데이터", refreshRes.data);
       });
     })();
+
+    return () => {
+      socket.close();
+    };
   }, []);
 
   const onClickMakeRoom = async (e) => {
     const room_name = prompt("방 제목을 입력해주세요.");
+    if (room_name === null) {
+      return;
+    }
     let room_uuid = uuidv4();
     const res = await axios.put("http://localhost:8000/api/chat/room/", {
       uuid: room_uuid,
@@ -85,6 +93,7 @@ const RoomList2 = () => {
   };
 
   const renderRoom = (room) => {
+    console.log(room);
     if (room.status === "ACTIVE") {
       return (
         <ActiveCardBox key={room.number}>
@@ -121,14 +130,23 @@ const RoomList2 = () => {
         <CleaningCardBox key={room.number}>
           <RoomNumberImg>
             <StyleRoomNumber>{room.number}</StyleRoomNumber>
+            <div className="cleaningNow">방을 정리중입니다....</div>
           </RoomNumberImg>
-          <progress></progress>
-          <StyleRoomName>방을 정리중입니다....</StyleRoomName>
-          <ButtonBox>
+          <StyleRoomName>
+            <div>
+              <progress></progress>
+            </div>
+            <ButtonBox>
+              <button onClick={onClickIntoRoom} id={room.number}>
+                참여하기
+              </button>
+            </ButtonBox>
+          </StyleRoomName>
+          {/* <ButtonBox>
             <button onClick={onClickIntoRoom} id={room.number}>
               참여하기
             </button>
-          </ButtonBox>
+          </ButtonBox> */}
         </CleaningCardBox>
       );
     }
@@ -240,7 +258,7 @@ const CleaningCardBox = styled.div`
   margin-bottom: 25px;
   transition: all 0.2s ease-in;
   progress {
-    width: 242px;
+    width: 400px;
     height: 41px;
   }
 
@@ -252,6 +270,10 @@ const CleaningCardBox = styled.div`
 const RoomNumberImg = styled.div`
   text-align: center;
   display: flex;
+  .cleaningNow {
+    font-weight: bold;
+    font-size: 40px;
+  }
 `;
 
 const StyleRoomNumber = styled.div`

@@ -14,7 +14,6 @@ const Home = () => {
   if (localStorage.getItem("user_token")) {
     let user_token = localStorage.getItem("user_token");
     let info = jwt_decode(user_token);
-    console.log("있어!", info);
   } else {
     console.log("없어!");
   }

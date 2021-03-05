@@ -1,6 +1,10 @@
 import React, { useEffect, useRef } from "react";
 import "./ShowVideo.css";
 
+{
+  /* <div>{name === '리액트' ? <h1>리액트입니다.</h1> : <h1>리액트가 아닙니다</h1>}</div> */
+}
+
 const ShowVideo = (pip) => {
   const videoRef = useRef(null);
   useEffect(() => {
@@ -11,8 +15,8 @@ const ShowVideo = (pip) => {
   }, [pip.pip.stream]);
   return (
     <div>
+      <div className="otherNickname">{pip.pip.nickname}</div>
       <video className="videos" controls ref={videoRef} autoPlay />
-      <h6>{pip.pip.nickname}</h6>
     </div>
   );
 };
