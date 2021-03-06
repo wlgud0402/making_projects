@@ -1,10 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import "./ShowVideo.css";
 
-{
-  /* <div>{name === '리액트' ? <h1>리액트입니다.</h1> : <h1>리액트가 아닙니다</h1>}</div> */
-}
-
 const ShowVideo = (pip) => {
   const videoRef = useRef(null);
   useEffect(() => {

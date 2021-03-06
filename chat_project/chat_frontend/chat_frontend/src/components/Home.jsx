@@ -14,16 +14,14 @@ const Home = () => {
   if (localStorage.getItem("user_token")) {
     let user_token = localStorage.getItem("user_token");
     let info = jwt_decode(user_token);
-  } else {
-    console.log("없어!");
   }
+
   // { user_id : 12, email   : "wlgudrlgus@naver.com", nickname: "wlgudrlgus"}
   const onClickStartMeeting = (e) => {
     if (localStorage.getItem("user_token")) {
       let user_token = localStorage.getItem("user_token");
       let user_info = jwt_decode(user_token);
       if (user_info.user_type === "MEMBER") {
-        // console.log(uuidv4());
         history.push("/roomlist2");
       } else {
         alert("방을 만드려면 가입이 필요합니다.");

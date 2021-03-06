@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import index, message, getMessage, changeroomstatus
-from .api import RoomAPI, GetRoomAPI
+from .api import RoomAPI, GetRoomAPI, RoomPasswordAPI
 from rest_framework import generics
 
 
@@ -12,4 +12,5 @@ urlpatterns = [
     path('getmessage/', getMessage, name='get_message'),
     # path('disconnected/', disconnected, name='get_message'),
     path('changeroomstatus/', changeroomstatus, name='change_room_status'),
+    path('roompassword/', RoomPasswordAPI.as_view(), name='roompassword'),
 ]

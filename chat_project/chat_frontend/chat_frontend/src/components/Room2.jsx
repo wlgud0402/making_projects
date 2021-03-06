@@ -9,13 +9,16 @@ import Clock from "react-live-clock";
 import styled from "styled-components";
 import { useHistory } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMicrophone } from "@fortawesome/free-solid-svg-icons";
+import { faMicrophone, faLockOpen } from "@fortawesome/free-solid-svg-icons";
 import { faMicrophoneSlash } from "@fortawesome/free-solid-svg-icons";
 import { faVideo } from "@fortawesome/free-solid-svg-icons";
 import { faVideoSlash } from "@fortawesome/free-solid-svg-icons";
 import { faDesktop } from "@fortawesome/free-solid-svg-icons";
 import { faUsers } from "@fortawesome/free-solid-svg-icons";
 import { faDoorOpen } from "@fortawesome/free-solid-svg-icons";
+import { faUnlock } from "@fortawesome/free-solid-svg-icons";
+import { faLock } from "@fortawesome/free-solid-svg-icons";
+// import { faLockOpen } from "@fortawesome/free-solid-svg-icons";
 
 const receivedPeerIds = new Set();
 ////////////////////////////////
@@ -37,9 +40,11 @@ const Room2 = ({ location }) => {
   const [chattings, setChattings] = useState([]);
   const [roomNumber, setRoomNumber] = useState("");
   const [roomName, setRoomName] = useState("");
+  const [roomLock, setRoomLock] = useState("");
   const [localPip, setLocalPip] = useState([]);
   const [pips, setPips] = useState([]);
   const [userNickname, setUserNickname] = useState("");
+  const [userType, setUserType] = useState("");
   const [videoState, setVideoState] = useState("");
   const [soundState, setSoundState] = useState("");
 
@@ -66,6 +71,9 @@ const Room2 = ({ location }) => {
   //   };
   // }, []);
 
+  // peerjs --port 3001 => 새로운 터미널에서 peerjs를 키고 여기서 거기로 붙는다
+  // const [pips, setPips] = useState([]);
+
   useEffect(() => {
     (async () => {
       const peer = new Peer(undefined, {
@@ -84,6 +92,7 @@ const Room2 = ({ location }) => {
         );
         setRoomNumber(room_data.data.room_id);
         setRoomName(room_data.data.room_name);
+        setRoomLock(room_data.data.is_private);
         setVideoState(true);
         setSoundState(true);
 
@@ -117,16 +126,14 @@ const Room2 = ({ location }) => {
           let info = jwt_decode(user_token);
 
           setUserNickname(info.nickname);
+          setUserType(info.user_type);
 
-          const new_user = await axios.post(
-            "http://localhost:8000/api/user/peer/",
-            {
-              user_id: info.user_id,
-              room_id: room_data.data.room_id,
-              room_uuid: uuid,
-              peer_id: peer.id,
-            }
-          );
+          await axios.post("http://localhost:8000/api/user/peer/", {
+            user_id: info.user_id,
+            room_id: room_data.data.room_id,
+            room_uuid: uuid,
+            peer_id: peer.id,
+          });
         } else {
           const guest_nickname = prompt("사용하실 닉네임을 입력해주세요.");
           const guest_data = await axios.post(
@@ -139,6 +146,10 @@ const Room2 = ({ location }) => {
             }
           );
           localStorage.setItem("user_token", guest_data.data.user_token);
+          let guest_token = localStorage.getItem("user_token");
+          let info = jwt_decode(guest_token);
+          setUserNickname(info.nickname);
+          setUserType(info.user_type);
         }
 
         //위에서 if 로직으로 회원유저, 비회원유저를 구분하고 데이터를 저장해주었다.
@@ -308,33 +319,67 @@ const Room2 = ({ location }) => {
   };
 
   const playStop = () => {
-    console.log("영상 멈춤, 재생");
     const enabled = videoRef.current.srcObject.getVideoTracks()[0].enabled;
     if (enabled) {
       videoRef.current.srcObject.getVideoTracks()[0].enabled = false;
       setVideoState(false);
-      console.log(videoState); //보이는 상태 true
-      // setPlayVideo(); 이미지변환
     } else {
       videoRef.current.srcObject.getVideoTracks()[0].enabled = true;
       setVideoState(true);
-      console.log(videoState); //현재 안보이는 상태 false
-      // setStopVideo();
     }
   };
 
   //음소거
   const muteUnmute = () => {
-    console.log("소리, 음소거");
     const enabled = videoRef.current.srcObject.getAudioTracks()[0].enabled;
     if (enabled) {
       videoRef.current.srcObject.getAudioTracks()[0].enabled = false;
       setSoundState(false);
-      // setUnmuteButton();
     } else {
-      // setMuteButton();
       videoRef.current.srcObject.getAudioTracks()[0].enabled = true;
       setSoundState(true);
+    }
+  };
+
+  const onLockRoom = async (e) => {
+    if (userType === "MEMBER") {
+      const roomPassword = prompt("비밀번호를 설정하세요");
+      if (roomPassword === null) {
+        return;
+      }
+      if (roomPassword === "") {
+        alert("비밀번호는 필수 항목입니다.");
+        return;
+      }
+      const roomIsPrivate = await axios.get(
+        `http://localhost:8000/api/chat/room/?id=${roomNumber}`
+      );
+      //비밀번호가 없던방!
+      if (roomIsPrivate.data.uuid) {
+        const res = await axios.post(
+          `http://localhost:8000/api/chat/roompassword/`,
+          { room_id: roomNumber, room_password: roomPassword }
+        );
+        setRoomLock(!roomLock);
+        alert(res.data.msg);
+      }
+    } else {
+      alert("비밀번호설정은 방 개설자만 할수 있습니다.");
+    }
+  };
+
+  const onUnLockRoom = async () => {
+    if (userType === "MEMBER") {
+      const res = await axios.put(
+        `http://localhost:8000/api/chat/roompassword/`,
+        {
+          room_id: roomNumber,
+        }
+      );
+      setRoomLock(!roomLock);
+      alert(res.data.msg);
+    } else {
+      alert("비밀번호설정은 방 개설자만 할수 있습니다.");
     }
   };
 
@@ -346,6 +391,28 @@ const Room2 = ({ location }) => {
           <div className="headerRoomName">{roomName}</div>
         </div>
         <div className="MainHeaderControls">
+          <div className="Controldiv">
+            {!roomLock ? (
+              <FontAwesomeIcon
+                className="inviteIcon headerIcon"
+                icon={faLockOpen}
+                size="2x"
+                onClick={onLockRoom}
+              />
+            ) : (
+              <FontAwesomeIcon
+                className="inviteIcon headerIcon"
+                icon={faLock}
+                size="2x"
+                onClick={onUnLockRoom}
+              />
+            )}
+            {!roomLock ? (
+              <p className="arrow_box">잠금 하기</p>
+            ) : (
+              <p className="arrow_box">잠금 해제</p>
+            )}
+          </div>
           <div className="Controldiv">
             <CopyToClipboard text={document.location.href}>
               <FontAwesomeIcon
@@ -653,41 +720,6 @@ const MainHeader = styled.div`
     pointer-events: none;
     content: " ";
   }
-
-  /* .screenShareIcon {
-    color: blue;
-    background-color: white;
-    cursor: pointer;
-    &:hover {
-      opacity: 0.5;
-    }
-  }
-
-  .videoPlayStopIcon {
-    color: yello;
-    background-color: white;
-    cursor: pointer;
-    &:hover {
-      opacity: 0.5;
-    }
-  }
-
-  .muteUnMuteIcon {
-    color: purple;
-    background-color: white;
-    cursor: pointer;
-    &:hover {
-      opacity: 0.5;
-    }
-  }
-  .inviteIcon {
-    color: orange;
-    background-color: white;
-    cursor: pointer;
-    &:hover {
-      opacity: 0.5;
-    }
-  } */
 `;
 
 const ChatHeader = styled.div`
@@ -701,10 +733,6 @@ const ChatHeader = styled.div`
 const ChatBody = styled.div`
   flex-grow: 1;
   overflow-y: scroll;
-  /* .myMessage {
-    color: white;
-    font-size: 24px;
-  } */
 
   ul {
     margin: 0;
@@ -716,14 +744,9 @@ const ChatBody = styled.div`
       color: black;
       justify-content: flex-start;
 
-      /* .otherUserNickname {
-        color: white;
-      } */
-
       .otherChat {
         background-color: darkgray;
         font-weight: bold;
-        /* border: 1px solid darkgray; */
         border-radius: 50px;
         padding: 0px 10px 0px 10px;
         margin-bottom: 5px;

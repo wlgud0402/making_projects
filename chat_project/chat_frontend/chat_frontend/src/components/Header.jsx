@@ -25,11 +25,9 @@ const Header = () => {
   };
 
   const onChangeNickname = async (e) => {
-    console.log("닉네임 변경클릭");
     if (localStorage.getItem("user_token")) {
       let user_token = localStorage.getItem("user_token");
       let info = jwt_decode(user_token);
-      console.log(info);
       const newNickname = prompt("새로운 닉네임을 입력해주세요.");
       if (newNickname !== null) {
         if (newNickname.length !== 0) {

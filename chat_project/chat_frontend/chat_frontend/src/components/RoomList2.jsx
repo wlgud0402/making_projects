@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Card } from "react-bootstrap";
 import { v4 as uuidv4 } from "uuid";
 import { useHistory } from "react-router-dom";
 import io from "socket.io-client";
@@ -20,7 +19,6 @@ const RoomList2 = () => {
     (async () => {
       const res = await axios.get("http://localhost:8000/api/chat/room/");
       setRoomList(res.data);
-      console.log(res.data);
 
       // room-refresh 이벤트를 받기위한 소켓
       socket = io(ENDPOINT, {
@@ -29,13 +27,10 @@ const RoomList2 = () => {
       socket.emit("join-roomlist", "데이터잘가나여!");
 
       socket.on("room-refresh", async (data) => {
-        console.log("roomlist에서 room-refresh가 일어납니다.");
         const refreshRes = await axios.get(
           "http://localhost:8000/api/chat/room/"
         );
         setRoomList(() => refreshRes.data);
-        console.log(refreshRes.data.map((v) => v.status));
-        console.log("시데이터", refreshRes.data);
       });
     })();
 
@@ -49,6 +44,11 @@ const RoomList2 = () => {
     if (room_name === null) {
       return;
     }
+    if (room_name === "") {
+      alert("방 제목은 필수 항목입니다.");
+      return;
+    }
+
     let room_uuid = uuidv4();
     const res = await axios.put("http://localhost:8000/api/chat/room/", {
       uuid: room_uuid,
@@ -69,11 +69,9 @@ const RoomList2 = () => {
     const res = await axios.get(
       `http://localhost:8000/api/chat/room/?id=${id}`
     );
-    console.log(typeof res.data);
     //방이 잠금되어있다면
     if (res.data.is_private) {
       const room_password = prompt("방 비밀번호를 입력해주세요...");
-      console.log(room_password);
       const check_res = await axios.post(
         "http://localhost:8000/api/chat/room/",
         { password: room_password, id: e.target.id }
@@ -87,13 +85,11 @@ const RoomList2 = () => {
 
       //방이 공개방이라면
     } else {
-      console.log("공개방", res.data.uuid);
       history.push(`/room2/${res.data.uuid}`);
     }
   };
 
   const renderRoom = (room) => {
-    console.log(room);
     if (room.status === "ACTIVE") {
       return (
         <ActiveCardBox key={room.number}>

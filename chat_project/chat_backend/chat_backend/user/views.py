@@ -17,19 +17,15 @@ def status_response(self):
 
 
 def index(request):
-    print(roomScheduler)
     return HttpResponse("유저앱의 기본 index주소")
 
 
 def hello(reqeust):
-    print(roomScheduler)
-    # print(reqeust.POST)
     return HttpResponse("헬로하고 인사해자")
 
 
 def getMessage(request):
     if request.method == 'POST':
-        print("메세지 받았어ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ")
         body_unicode = request.body.decode('utf-8')
         data = json.loads(body_unicode)['message']
         room_id = json.loads(body_unicode)['room_id']
@@ -52,14 +48,12 @@ def disconnected(request):
     content = {'msg': 'process is working'}
     if request.method == 'POST':
         try:
-            print("ㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜ,")
             data = request.body.decode('utf-8')
             peer_id = json.loads(data)['peer_id']
             room_id = json.loads(data)['room_id']
             disconnected_user = User.objects.filter(
                 room_id=room_id).get(peer_id=peer_id)
 
-            print("연결끊은유저: ", disconnected_user)
             disconnected_user.room_id = 0
             disconnected_user.room_uuid = "NULL"
             disconnected_user.peer_id = "default"
@@ -67,7 +61,6 @@ def disconnected(request):
 
             room = Room.objects.get(id=room_id)
             room_user_count = User.objects.filter(room_id=room_id).count()
-            print("방안에 남아있는 유저의 수 ", room_user_count)
             if room_user_count <= 0:
                 room.status = "CLEANING"
                 room.save()
@@ -78,12 +71,10 @@ def disconnected(request):
                     'room_id': json.loads(data)['room_id'],
                 }))
 
-                print("스케줄링 시작")
                 roomScheduler.scheduleRemove(json.loads(data)['room_id'])
 
             return HttpResponse()
         except:
-            print("무슨에러인지나 보자:")
             return HttpResponse()
     else:
         return HttpResponse()
