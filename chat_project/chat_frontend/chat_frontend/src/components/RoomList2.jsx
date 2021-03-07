@@ -10,6 +10,8 @@ import onair from "../assets/onair.png";
 import onair2 from "../assets/onair2.png";
 import onair3 from "../assets/onair3.png";
 
+window.io = io;
+
 let socket;
 const RoomList2 = () => {
   const ENDPOINT = "http://localhost:5000";
@@ -17,19 +19,22 @@ const RoomList2 = () => {
   const [roomList, setRoomList] = useState([]);
   useEffect(() => {
     (async () => {
-      const res = await axios.get("http://localhost:8000/api/chat/room/");
+      const res = await axios.get("/api/chat/room/");
       setRoomList(res.data);
 
       // room-refresh 이벤트를 받기위한 소켓
-      socket = io(ENDPOINT, {
-        transports: ["websocket", "polling", "flashsocket"],
-      });
+      // socket = io(ENDPOINT, {
+      //   transports: ["websocket", "polling", "flashsocket"],
+      // });
+      // socket = io(ENDPOINT);
+      console.log("http://3.36.99.83/socket.io");
+      // socket = io("http://3.36.99.83/socket.io");
+      socket = io("ws://3.36.99.82/socket.io");
+
       socket.emit("join-roomlist", "데이터잘가나여!");
 
       socket.on("room-refresh", async (data) => {
-        const refreshRes = await axios.get(
-          "http://localhost:8000/api/chat/room/"
-        );
+        const refreshRes = await axios.get("/api/chat/room/");
         setRoomList(() => refreshRes.data);
       });
     })();
@@ -50,7 +55,7 @@ const RoomList2 = () => {
     }
 
     let room_uuid = uuidv4();
-    const res = await axios.put("http://localhost:8000/api/chat/room/", {
+    const res = await axios.put("/api/chat/room/", {
       uuid: room_uuid,
       name: room_name,
       number: e.target.id,
@@ -66,16 +71,14 @@ const RoomList2 = () => {
   //방의 상태가 ACTIVE일때와 CLEANING일때만 보여줘야함
   const onClickIntoRoom = async (e) => {
     const id = e.target.id;
-    const res = await axios.get(
-      `http://localhost:8000/api/chat/room/?id=${id}`
-    );
+    const res = await axios.get(`/api/chat/room/?id=${id}`);
     //방이 잠금되어있다면
     if (res.data.is_private) {
       const room_password = prompt("방 비밀번호를 입력해주세요...");
-      const check_res = await axios.post(
-        "http://localhost:8000/api/chat/room/",
-        { password: room_password, id: e.target.id }
-      );
+      const check_res = await axios.post("/api/chat/room/", {
+        password: room_password,
+        id: e.target.id,
+      });
       if (check_res.data.uuid) {
         history.push(`/room2/${check_res.data.uuid}`);
       } else {

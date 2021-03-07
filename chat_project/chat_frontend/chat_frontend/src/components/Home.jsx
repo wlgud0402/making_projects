@@ -6,6 +6,7 @@ import Header from "./Header";
 import Footer from "./Footer";
 import Carousel from "react-bootstrap/Carousel";
 import styled from "styled-components";
+import axios from "axios";
 
 const Home = () => {
   // const [userInfo, setUserInfo] = useState("");
@@ -30,17 +31,14 @@ const Home = () => {
       alert("방을 시작하려면 로그인이 필요합니다");
     }
   };
+  const onTest = (e) => {
+    axios.post("/hello", { data: "데이터" });
+  };
 
   return (
-    // <div>
-    //   <Header />
-    //   <div>
-    //     <button onClick={onClickStartMeeting}>미팅시작</button>
-    //   </div>
-    //   <Footer />
-    // </div>
     <>
       <Header />
+      {/* <button onClick={onTest}>요청테스트</button> */}
       <Carousel>
         <Carousel.Item style={{ height: "55vh" }}>
           <img

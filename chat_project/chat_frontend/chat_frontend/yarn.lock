@@ -2401,6 +2401,16 @@
   dependencies:
     "sprintf-js" "~1.0.2"
 
+"args@5.0.1":
+  "integrity" "sha512-1kqmFCFsPffavQFGt8OxJdIcETti99kySRUPMpOhaGjL6mRJn8HFU1OxKY5bMqfZKUwTQc1mZkAjmGYaVOHFtQ=="
+  "resolved" "https://registry.npmjs.org/args/-/args-5.0.1.tgz"
+  "version" "5.0.1"
+  dependencies:
+    "camelcase" "5.0.0"
+    "chalk" "2.4.2"
+    "leven" "2.1.0"
+    "mri" "1.1.4"
+
 "aria-query@^4.2.2":
   "integrity" "sha512-o/HelwhuKpTj/frsOsbNLNgnNGVIFsVP/SW2BSF14gVl7kAfMOJ6/8wUAUvG1R1NHKrfG+2sHZTu0yauT1qBrA=="
   "resolved" "https://registry.npmjs.org/aria-query/-/aria-query-4.2.2.tgz"
@@ -2835,6 +2845,11 @@
   "resolved" "https://registry.npmjs.org/base64id/-/base64id-2.0.0.tgz"
   "version" "2.0.0"
 
+"basic-auth-parser@0.0.2":
+  "integrity" "sha1-zp5xp38jwSee7NJlmypGJEwVbkE="
+  "resolved" "https://registry.npmjs.org/basic-auth-parser/-/basic-auth-parser-0.0.2.tgz"
+  "version" "0.0.2"
+
 "batch@0.6.1":
   "integrity" "sha1-3DQxT05nkxgJP8dgJyUl+UvyXBY="
   "resolved" "https://registry.npmjs.org/batch/-/batch-0.6.1.tgz"
@@ -3229,6 +3244,11 @@
   "integrity" "sha512-c7wVvbw3f37nuobQNtgsgG9POC9qMbNuMQmTCqZv23b6MIz0fcYpBiOlv9gEN/hdLdnZTDQhg6e9Dq5M1vKvfg=="
   "resolved" "https://registry.npmjs.org/camelcase/-/camelcase-6.2.0.tgz"
   "version" "6.2.0"
+
+"camelcase@5.0.0":
+  "integrity" "sha512-faqwZqnWxbxn+F1d399ygeamQNy3lPp/H9H6rNrqYh4FSVCtcY+3cub1MxA8o9mDd55mM8Aghuu/kuyYA6VTsA=="
+  "resolved" "https://registry.npmjs.org/camelcase/-/camelcase-5.0.0.tgz"
+  "version" "5.0.0"
 
 "camelcase@5.3.1":
   "integrity" "sha512-L28STB170nwWS63UjtlEOE3dldQApaJXZkOI1uMFfzf3rRuPegHaHesyee+YxQ+W6SvRDQV6UrdOdRiR153wJg=="
@@ -7193,6 +7213,11 @@
   "resolved" "https://registry.npmjs.org/leven/-/leven-3.1.0.tgz"
   "version" "3.1.0"
 
+"leven@2.1.0":
+  "integrity" "sha1-wuep93IJTe6dNCAq6KzORoeHVYA="
+  "resolved" "https://registry.npmjs.org/leven/-/leven-2.1.0.tgz"
+  "version" "2.1.0"
+
 "levn@^0.4.1":
   "integrity" "sha512-+bT2uH4E5LGE7h/n3evcS/sQlJXCpIp6ym8OWJ5eV6+67Dsql/LaaT7qJBAt2rzfoa/5QBGBhxDix1dMt2kQKQ=="
   "resolved" "https://registry.npmjs.org/levn/-/levn-0.4.1.tgz"
@@ -7700,6 +7725,11 @@
     "mkdirp" "^0.5.1"
     "rimraf" "^2.5.4"
     "run-queue" "^1.0.3"
+
+"mri@1.1.4":
+  "integrity" "sha512-6y7IjGPm8AzlvoUrwAaw1tLnUBudaS3752vcd8JtrpGGQn+rXIe63LFVHm/YMwtqAuh+LJPCFdlLYPWM1nYn6w=="
+  "resolved" "https://registry.npmjs.org/mri/-/mri-1.1.4.tgz"
+  "version" "1.1.4"
 
 "ms@^2.1.1", "ms@2.1.2":
   "integrity" "sha512-sGkPx+VjMtmA6MX27oA4FBFELFCZZ4S4XqeGOXCv68tT+jb3vk/RyaKWP0PTKyWtmLSM0b+adUTEvbs1PEaH2w=="
@@ -9276,6 +9306,15 @@
   dependencies:
     "forwarded" "~0.1.2"
     "ipaddr.js" "1.9.1"
+
+"proxy@^1.0.2":
+  "integrity" "sha512-KNac2ueWRpjbUh77OAFPZuNdfEqNynm9DD4xHT14CccGpW8wKZwEkN0yjlb7X9G9Z9F55N0Q+1z+WfgAhwYdzQ=="
+  "resolved" "https://registry.npmjs.org/proxy/-/proxy-1.0.2.tgz"
+  "version" "1.0.2"
+  dependencies:
+    "args" "5.0.1"
+    "basic-auth-parser" "0.0.2"
+    "debug" "^4.1.1"
 
 "prr@~1.0.1":
   "integrity" "sha1-0/wRS6BplaRexok/SEzrHXj19HY="

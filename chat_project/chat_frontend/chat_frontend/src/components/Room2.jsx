@@ -87,9 +87,7 @@ const Room2 = ({ location }) => {
       });
 
       peer.on("open", async () => {
-        const room_data = await axios.get(
-          `http://localhost:8000/api/chat/getroom/?uuid=${uuid}`
-        );
+        const room_data = await axios.get(`/api/chat/getroom/?uuid=${uuid}`);
         setRoomNumber(room_data.data.room_id);
         setRoomName(room_data.data.room_name);
         setRoomLock(room_data.data.is_private);
@@ -128,7 +126,7 @@ const Room2 = ({ location }) => {
           setUserNickname(info.nickname);
           setUserType(info.user_type);
 
-          await axios.post("http://localhost:8000/api/user/peer/", {
+          await axios.post("/api/user/peer/", {
             user_id: info.user_id,
             room_id: room_data.data.room_id,
             room_uuid: uuid,
@@ -136,15 +134,12 @@ const Room2 = ({ location }) => {
           });
         } else {
           const guest_nickname = prompt("사용하실 닉네임을 입력해주세요.");
-          const guest_data = await axios.post(
-            "http://localhost:8000/api/user/peer/guest",
-            {
-              nickname: guest_nickname,
-              peer_id: peer.id,
-              room_id: room_data.data.room_id,
-              room_uuid: uuid,
-            }
-          );
+          const guest_data = await axios.post("/api/user/peer/guest", {
+            nickname: guest_nickname,
+            peer_id: peer.id,
+            room_id: room_data.data.room_id,
+            room_uuid: uuid,
+          });
           localStorage.setItem("user_token", guest_data.data.user_token);
           let guest_token = localStorage.getItem("user_token");
           let info = jwt_decode(guest_token);
@@ -155,7 +150,7 @@ const Room2 = ({ location }) => {
         //위에서 if 로직으로 회원유저, 비회원유저를 구분하고 데이터를 저장해주었다.
 
         const peer_data = await axios.get(
-          `http://localhost:8000/api/user/peerbyroom/${room_data.data.room_id}`
+          `/api/user/peerbyroom/${room_data.data.room_id}`
         );
         const myStream = await navigator.mediaDevices.getUserMedia({
           video: true,
@@ -182,7 +177,7 @@ const Room2 = ({ location }) => {
         peer.on("call", function (call) {
           call.on("stream", async (otherStream) => {
             const user_data = await axios.get(
-              `http://localhost:8000/api/user/?peer_id=${call.peer}`
+              `/api/user/?peer_id=${call.peer}`
             );
 
             const pip = {
@@ -221,7 +216,7 @@ const Room2 = ({ location }) => {
           // 다른사람의 answer로 stream을 받아옵니다 ㅎㅎ
           call.on("stream", async (otherStream) => {
             const user_data = await axios.get(
-              `http://localhost:8000/api/user/?peer_id=${peerdata.peer_id}`
+              `/api/user/?peer_id=${peerdata.peer_id}`
             );
 
             const pip = {
@@ -253,7 +248,7 @@ const Room2 = ({ location }) => {
 
   const onSubmitMessage = async (e) => {
     e.preventDefault();
-    axios.post("http://localhost:8000/api/chat/getmessage/", {
+    axios.post("/api/chat/getmessage/", {
       message: textMessage,
       nickname: localPip.nickname,
       room_id: roomNumber,
@@ -285,11 +280,9 @@ const Room2 = ({ location }) => {
       displayMediaOptions
     );
 
-    const room_data = await axios.get(
-      `http://localhost:8000/api/chat/getroom/?uuid=${uuid}`
-    );
+    const room_data = await axios.get(`/api/chat/getroom/?uuid=${uuid}`);
     const peer_data = await axios.get(
-      `http://localhost:8000/api/user/peerbyroom/${room_data.data.room_id}`
+      `/api/user/peerbyroom/${room_data.data.room_id}`
     );
 
     peer_data.data.all_peer_ids.forEach((peerdata) => {
@@ -351,15 +344,14 @@ const Room2 = ({ location }) => {
         alert("비밀번호는 필수 항목입니다.");
         return;
       }
-      const roomIsPrivate = await axios.get(
-        `http://localhost:8000/api/chat/room/?id=${roomNumber}`
-      );
+      const roomIsPrivate = await axios.get(`/api/chat/room/?id=${roomNumber}`);
+
       //비밀번호가 없던방!
       if (roomIsPrivate.data.uuid) {
-        const res = await axios.post(
-          `http://localhost:8000/api/chat/roompassword/`,
-          { room_id: roomNumber, room_password: roomPassword }
-        );
+        const res = await axios.post(`/api/chat/roompassword/`, {
+          room_id: roomNumber,
+          room_password: roomPassword,
+        });
         setRoomLock(!roomLock);
         alert(res.data.msg);
       }
@@ -370,12 +362,9 @@ const Room2 = ({ location }) => {
 
   const onUnLockRoom = async () => {
     if (userType === "MEMBER") {
-      const res = await axios.put(
-        `http://localhost:8000/api/chat/roompassword/`,
-        {
-          room_id: roomNumber,
-        }
-      );
+      const res = await axios.put(`/api/chat/roompassword/`, {
+        room_id: roomNumber,
+      });
       setRoomLock(!roomLock);
       alert(res.data.msg);
     } else {

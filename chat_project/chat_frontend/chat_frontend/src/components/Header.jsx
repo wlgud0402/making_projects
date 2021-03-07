@@ -1,14 +1,15 @@
-import { Link, useHistory } from "react-router-dom";
+import { Link } from "react-router-dom";
 import styled from "styled-components";
 import axios from "axios";
 import jwt_decode from "jwt-decode";
-import GoogleLoginAPI from "./GoogleLoginAPI";
+// import GoogleLoginAPI from "./GoogleLoginAPI";
 import { Dropdown } from "react-bootstrap";
 import { useEffect, useState } from "react";
+import GoogleLogin from "react-google-login";
 
 const Header = () => {
-  const history = useHistory();
-  const moveToLogin = () => history.push("/login");
+  // const history = useHistory();
+  // const moveToLogin = () => history.push("/login");
   const [userInfo, setUserInfo] = useState("");
 
   useEffect(() => {
@@ -32,10 +33,10 @@ const Header = () => {
       if (newNickname !== null) {
         if (newNickname.length !== 0) {
           //제대로된 입력
-          const newInfo = await axios.put(
-            "http://localhost:8000/api/user/changeUserNickname/",
-            { user_id: userInfo.user_id, new_nickname: newNickname }
-          );
+          const newInfo = await axios.put("/api/user/changeUserNickname/", {
+            user_id: userInfo.user_id,
+            new_nickname: newNickname,
+          });
           localStorage.setItem("user_token", newInfo.data.user_token);
 
           let newUserToken = localStorage.getItem("user_token");
@@ -49,6 +50,23 @@ const Header = () => {
         return; //닉네임 입력창에서 esc발생
       }
     }
+  };
+
+  const responseGoogle = async (response) => {
+    let idx = response.profileObj.email.indexOf("@");
+    let nickname = response.profileObj.email.substring(0, idx);
+
+    const axiosres = await axios.post("/api/user/", {
+      google_id: response.profileObj.googleId,
+      email: response.profileObj.email,
+      nickname: nickname,
+      user_type: "MEMBER",
+    });
+    localStorage.setItem("user_token", axiosres.data.user_token);
+
+    let user_token = localStorage.getItem("user_token");
+    let info = jwt_decode(user_token);
+    setUserInfo(info);
   };
 
   if (userInfo !== "") {
@@ -83,7 +101,13 @@ const Header = () => {
           <LogoContainer>
             <Link to="/">BroadMeeting</Link>
           </LogoContainer>
-          <GoogleLoginAPI />
+          <GoogleLogin
+            clientId="964185854250-c45rpld9numrbbjtsbjpi8akbub3l6f1.apps.googleusercontent.com"
+            buttonText="로그인"
+            onSuccess={responseGoogle}
+            onFailure={responseGoogle}
+            cookiePolicy={"single_host_origin"}
+          />
         </Contents>
       </Wrapper>
     );
