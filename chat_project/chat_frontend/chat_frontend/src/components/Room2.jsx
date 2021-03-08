@@ -18,9 +18,11 @@ import { faUsers } from "@fortawesome/free-solid-svg-icons";
 import { faDoorOpen } from "@fortawesome/free-solid-svg-icons";
 import { faUnlock } from "@fortawesome/free-solid-svg-icons";
 import { faLock } from "@fortawesome/free-solid-svg-icons";
-// import { faLockOpen } from "@fortawesome/free-solid-svg-icons";
+// import { faLockOpen } from "@fortawesome/free-solid-svg-icons"
+import { v4 as uuidv4 } from "uuid";
 
 const receivedPeerIds = new Set();
+// window.io = io;
 ////////////////////////////////
 let socket;
 // let chattings = [];
@@ -76,15 +78,17 @@ const Room2 = ({ location }) => {
 
   useEffect(() => {
     (async () => {
-      const peer = new Peer(undefined, {
-        host: "localhost",
-        port: "3001",
-        path: "/",
+      const peer = new Peer(uuidv4(), {
+        host: "www.meetstream.net",
+        path: "/peerjs",
+        secure: true,
       });
       peerRef.current = peer;
-      socket = io(ENDPOINT, {
-        transports: ["websocket", "polling", "flashsocket"],
-      });
+      socket = io("https://eyelikemeeting.com/socket.io");
+
+      // socket = io(ENDPOINT, {
+      //   transports: ["websocket", "polling", "flashsocket"],
+      // });
 
       peer.on("open", async () => {
         const room_data = await axios.get(`/api/chat/getroom/?uuid=${uuid}`);

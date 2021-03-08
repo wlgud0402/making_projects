@@ -9,6 +9,9 @@ import styled from "styled-components";
 import onair from "../assets/onair.png";
 import onair2 from "../assets/onair2.png";
 import onair3 from "../assets/onair3.png";
+import onair4 from "../assets/onair4.png";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBroadcastTower } from "@fortawesome/free-solid-svg-icons";
 
 window.io = io;
 
@@ -27,10 +30,9 @@ const RoomList2 = () => {
       //   transports: ["websocket", "polling", "flashsocket"],
       // });
       // socket = io(ENDPOINT);
-      console.log("http://3.36.99.83/socket.io");
+      // console.log("http://3.36.99.83/socket.io");
       // socket = io("http://3.36.99.83/socket.io");
-      socket = io("ws://3.36.99.82/socket.io");
-
+      socket = io("https://eyelikemeeting.com/socket.io");
       socket.emit("join-roomlist", "데이터잘가나여!");
 
       socket.on("room-refresh", async (data) => {
@@ -98,7 +100,14 @@ const RoomList2 = () => {
         <ActiveCardBox key={room.number}>
           <RoomNumberImg>
             <StyleRoomNumber>{room.number}</StyleRoomNumber>
-            <img src={onair} alt={"onair"} />
+            {/* <FontAwesomeIcon
+              className="inviteIcon headerIcon"
+              icon={faBroadcastTower}
+              size="2x"
+              // onClick={onCopyToClipboard}
+            /> */}
+
+            <img src={onair4} alt={"onair"} />
           </RoomNumberImg>
           <StyleRoomName>{room.name}</StyleRoomName>
           <ButtonBox>
@@ -141,11 +150,6 @@ const RoomList2 = () => {
               </button>
             </ButtonBox>
           </StyleRoomName>
-          {/* <ButtonBox>
-            <button onClick={onClickIntoRoom} id={room.number}>
-              참여하기
-            </button>
-          </ButtonBox> */}
         </CleaningCardBox>
       );
     }
@@ -155,7 +159,7 @@ const RoomList2 = () => {
     <>
       <Header />
       <Box>
-        <h1>현재 방목록</h1>
+        {/* <h1>현재 방목록</h1> */}
         <ContentBox>{roomList.map(renderRoom)}</ContentBox>
       </Box>
       <Footer />
@@ -168,17 +172,30 @@ export default RoomList2;
 const ButtonBox = styled.div`
   text-align: center;
   transition: all 0.9s ease-in;
+
   button {
-    font-size: 25px;
-    border-radius: 10%;
-    outline: none;
+    border-radius: 60px;
+    font-weight: bold;
+    /* background-color: #031321; */
+    font-family: consolas;
+    padding: 15px 30px;
+    color: black;
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    text-decoration: none;
+    font-size: 24px;
+    overflow: hidden;
+    transition: 0.2s;
     &:hover {
-      font-size: 30px;
+      color: white;
+      background: #2196f3;
+      box-shadow: 0 0 10px #2196f3, 0 0 40px #2196f3, 0 0 80px #2196f3;
     }
   }
 `;
 
 const Box = styled.div`
+  margin-top: 55px;
   width: 100%;
   height: 100%;
   display: flex;
@@ -213,7 +230,7 @@ const ActiveCardBox = styled.div`
   margin-bottom: 25px;
   transition: all 0.2s ease-in;
   &:hover {
-    opacity: 0.9;
+    opacity: 0.7;
   }
 `;
 
@@ -235,7 +252,7 @@ const IdleCardBox = styled.div`
   margin-bottom: 25px;
   transition: all 0.2s ease-in;
   &:hover {
-    opacity: 0.8;
+    opacity: 0.7;
   }
 `;
 
@@ -262,13 +279,16 @@ const CleaningCardBox = styled.div`
   }
 
   &:hover {
-    opacity: 0.9;
+    opacity: 0.7;
   }
 `;
 
 const RoomNumberImg = styled.div`
   text-align: center;
   display: flex;
+  img {
+    height: 60px;
+  }
   .cleaningNow {
     font-weight: bold;
     font-size: 40px;
