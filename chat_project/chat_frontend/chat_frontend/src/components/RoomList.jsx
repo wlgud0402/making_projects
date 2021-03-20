@@ -6,18 +6,18 @@ import io from "socket.io-client";
 import Header from "./Header";
 import Footer from "./Footer";
 import styled from "styled-components";
-import onair from "../assets/onair.png";
-import onair2 from "../assets/onair2.png";
-import onair3 from "../assets/onair3.png";
+// import onair from "../assets/onair.png";
+// import onair2 from "../assets/onair2.png";
+// import onair3 from "../assets/onair3.png";
 import onair4 from "../assets/onair4.png";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBroadcastTower } from "@fortawesome/free-solid-svg-icons";
+// import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+// import { faBroadcastTower } from "@fortawesome/free-solid-svg-icons";
 
 window.io = io;
 
 let socket;
-const RoomList2 = () => {
-  const ENDPOINT = "http://localhost:5000";
+const RoomList = () => {
+  // const ENDPOINT = "http://localhost:5000";
   let history = useHistory();
   const [roomList, setRoomList] = useState([]);
   useEffect(() => {
@@ -32,7 +32,7 @@ const RoomList2 = () => {
       // socket = io(ENDPOINT);
       // console.log("http://3.36.99.83/socket.io");
       // socket = io("http://3.36.99.83/socket.io");
-      socket = io("https://eyelikemeeting.com/socket.io");
+      socket = io("https://eyelikemeeting.com");
       socket.emit("join-roomlist", "데이터잘가나여!");
 
       socket.on("room-refresh", async (data) => {
@@ -65,7 +65,7 @@ const RoomList2 = () => {
     });
 
     history.push({
-      pathname: `room2/${room_uuid}`,
+      pathname: `room/${room_uuid}`,
       state: { uuid: res.data.room_uuid },
     });
   };
@@ -82,7 +82,7 @@ const RoomList2 = () => {
         id: e.target.id,
       });
       if (check_res.data.uuid) {
-        history.push(`/room2/${check_res.data.uuid}`);
+        history.push(`/room/${check_res.data.uuid}`);
       } else {
         alert(check_res.data.msg); //잘못된 비밀번호
         return;
@@ -90,7 +90,7 @@ const RoomList2 = () => {
 
       //방이 공개방이라면
     } else {
-      history.push(`/room2/${res.data.uuid}`);
+      history.push(`/room/${res.data.uuid}`);
     }
   };
 
@@ -167,7 +167,7 @@ const RoomList2 = () => {
   );
 };
 
-export default RoomList2;
+export default RoomList;
 
 const ButtonBox = styled.div`
   text-align: center;

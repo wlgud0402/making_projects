@@ -16,17 +16,16 @@ import { faVideoSlash } from "@fortawesome/free-solid-svg-icons";
 import { faDesktop } from "@fortawesome/free-solid-svg-icons";
 import { faUsers } from "@fortawesome/free-solid-svg-icons";
 import { faDoorOpen } from "@fortawesome/free-solid-svg-icons";
-import { faUnlock } from "@fortawesome/free-solid-svg-icons";
 import { faLock } from "@fortawesome/free-solid-svg-icons";
 // import { faLockOpen } from "@fortawesome/free-solid-svg-icons"
 import { v4 as uuidv4 } from "uuid";
 
 const receivedPeerIds = new Set();
-// window.io = io;
+window.io = io;
 ////////////////////////////////
 let socket;
 // let chattings = [];
-const Room2 = ({ location }) => {
+const Room = ({ location }) => {
   const videoRef = useRef(null);
   let history = useHistory();
   let displayMediaOptions = {
@@ -37,7 +36,7 @@ const Room2 = ({ location }) => {
   };
 
   let peerRef = useRef("");
-  const ENDPOINT = "http://localhost:5000";
+  // const ENDPOINT = "http://localhost:5000";
   const chatBodyRef = useRef();
   const [chattings, setChattings] = useState([]);
   const [roomNumber, setRoomNumber] = useState("");
@@ -55,23 +54,12 @@ const Room2 = ({ location }) => {
     const chatBodyElement = chatBodyRef.current;
     chatBodyElement.scrollTop = chatBodyElement.scrollHeight;
   }, [chattings.length]);
-  // const scrollToBottom = () => {
-  //   const chatBodyElement = chatBodyRef.current;
-  //   chatBodyElement.scrollTop = chatBodyElement.scrollHeight;
-  //   console.log(chatBodyRef);
-  // };
 
   const onCopyToClipboard = (e) => {
     alert("초대주소가 클립보드에 저장되었습니다.");
   };
-  let uuid = document.location.href.split("/room2/")[1];
+  let uuid = document.location.href.split("/room/")[1];
   const [disconnectedUser, setDisconnectedUser] = useState("");
-
-  // useEffect(() => {
-  //   return () => {
-  //     console.log("...");
-  //   };
-  // }, []);
 
   // peerjs --port 3001 => 새로운 터미널에서 peerjs를 키고 여기서 거기로 붙는다
   // const [pips, setPips] = useState([]);
@@ -84,7 +72,7 @@ const Room2 = ({ location }) => {
         secure: true,
       });
       peerRef.current = peer;
-      socket = io("https://eyelikemeeting.com/socket.io");
+      socket = io("https://eyelikemeeting.com");
 
       // socket = io(ENDPOINT, {
       //   transports: ["websocket", "polling", "flashsocket"],
@@ -530,7 +518,6 @@ const Room2 = ({ location }) => {
             </ul>
           </ChatBody>
           <ChatContainer>
-            {/* <textarea></textarea> */}
             <form onSubmit={onSubmitMessage}>
               <input
                 type="text"
@@ -548,7 +535,7 @@ const Room2 = ({ location }) => {
   );
 };
 
-export default Room2;
+export default Room;
 // main, mainheader mainleft mainvideos mainright chatheader
 
 const Main = styled.div`

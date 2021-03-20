@@ -23,7 +23,7 @@ const Home = () => {
       let user_token = localStorage.getItem("user_token");
       let user_info = jwt_decode(user_token);
       if (user_info.user_type === "MEMBER") {
-        history.push("/roomlist2");
+        history.push("/roomlist"); //roomlist2
       } else {
         alert("방을 만드려면 가입이 필요합니다.");
       }

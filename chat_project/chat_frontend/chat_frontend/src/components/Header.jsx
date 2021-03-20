@@ -74,7 +74,7 @@ const Header = () => {
       <Wrapper>
         <Contents>
           <LogoContainer>
-            <Link to="/">BroadMeeting</Link>
+            <Link to="/">EyeLikeMeeting</Link>
           </LogoContainer>
           <Dropdown>
             <Dropdown.Toggle variant="secondary" id="dropdown-basic">
@@ -99,7 +99,7 @@ const Header = () => {
       <Wrapper>
         <Contents>
           <LogoContainer>
-            <Link to="/">BroadMeeting</Link>
+            <Link to="/">EyeLikeMeeting</Link>
           </LogoContainer>
           <GoogleLogin
             clientId="964185854250-c45rpld9numrbbjtsbjpi8akbub3l6f1.apps.googleusercontent.com"

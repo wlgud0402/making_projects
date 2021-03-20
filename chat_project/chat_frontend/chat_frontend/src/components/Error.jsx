@@ -28,7 +28,7 @@ const ErrorBody = styled.div`
   height: 74vh;
 
   .errorCard {
-    border: 1px solid;
+    /* border: 1px solid; */
     width: 73%;
     height: 30%;
     display: flex;
