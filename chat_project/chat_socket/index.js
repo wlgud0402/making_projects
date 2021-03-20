@@ -1,21 +1,15 @@
 const express = require("express");
 const socketio = require("socket.io");
 const http = require("http");
-
-const axios = require("axios");
+const axios = require("./node_modules/axios");
 
 const PORT = process.env.PORT || 5000;
 
-// const router = require("./router");
+const router = require("./router");
 
 const app = express();
 const server = http.createServer(app);
-const io = socketio(server, {
-  cors: {
-    origin: "*",
-    methods: ["GET", "POST"],
-  },
-});
+const io = socketio(server);
 
 //redis
 const redis = require("redis");
@@ -25,6 +19,7 @@ client.subscribe("my-chat");
 client.subscribe("room-refresh");
 
 const rooms = {};
+
 const roomList = new Set();
 
 //axios.post요청으로 메시지를 보낸후입니다.
@@ -33,13 +28,9 @@ client.on("message", function (subscribeChannel, data) {
     case "my-chat":
       const messageData = JSON.parse(data);
       //my-chat이벤트로 받아온 데이터 messageData.(room_id, message, nickname);
-      if (rooms[messageData.room_id]) {
-        rooms[messageData.room_id].forEach((socket) => {
-          socket.emit("createMessage", messageData);
-        });
-      } else {
-        break;
-      }
+      rooms[messageData.room_id].forEach((socket) => {
+        socket.emit("createMessage", messageData);
+      });
       break;
     case "room-refresh":
       setTimeout(() => {
@@ -85,7 +76,6 @@ io.on("connection", (socket) => {
 
   //연결이 끊어졌을때 입니다.
   socket.on("disconnect", (closedsocket) => {
-    console.log("소켓 끈어짐!!!!!!!!!!!!!!!!!!");
     if (rooms[socket.room_id]) {
       rooms[socket.room_id].forEach((eachsocket) => {
         eachsocket.emit(
@@ -110,5 +100,5 @@ io.on("connection", (socket) => {
   });
 });
 
-// app.use(router);
+app.use(router);
 server.listen(PORT, () => console.log(`Server has started on port ${PORT}`));

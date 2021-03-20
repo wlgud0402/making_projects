@@ -119,10 +119,6 @@ const Room2 = ({ location }) => {
           });
         });
 
-        // socket.on("user-disconnected", () => {
-        //   console.log("연결이 끊킨 socket: ", socket);
-        // });
-
         if (localStorage.getItem("user_token")) {
           let user_token = localStorage.getItem("user_token");
           let info = jwt_decode(user_token);

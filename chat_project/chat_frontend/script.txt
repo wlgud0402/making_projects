@@ -1,0 +1,1 @@
+scp -i /Users/wlgud/Documents/myKey/eyelikemeeting.pem -r /Users/wlgud/Documents/Projects/chat_project/chat_frontend/chat_frontend/build/* ubuntu@ec2-3-36-99-82.ap-northeast-2.compute.amazonaws.com:~/react

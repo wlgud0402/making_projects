@@ -10,17 +10,16 @@ import json
 
 def getMessage(request):
     if request.method == 'POST':
-        print("메세지 받았어ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ")
         body_unicode = request.body.decode('utf-8')
         data = json.loads(body_unicode)['message']
-        roomId = json.loads(body_unicode)['roomId']
+        room_id = json.loads(body_unicode)['room_id']
         r = redis.Redis(host='localhost', port=6379, db=0)
 
         # select * from user where user.id = id;
-        # roomId = user.roomId;
+        # room_id = user.room_id;
 
         r.publish('my-chat', json.dumps({
-            'roomId': roomId,
+            'room_id': room_id,
             "nickname": "dollie",
             "msg": data,
         }))
