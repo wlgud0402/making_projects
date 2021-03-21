@@ -53,20 +53,24 @@ const Header = () => {
   };
 
   const responseGoogle = async (response) => {
-    let idx = response.profileObj.email.indexOf("@");
-    let nickname = response.profileObj.email.substring(0, idx);
+    try {
+      let idx = response.profileObj.email.indexOf("@");
+      let nickname = response.profileObj.email.substring(0, idx);
 
-    const axiosres = await axios.post("/api/user/", {
-      google_id: response.profileObj.googleId,
-      email: response.profileObj.email,
-      nickname: nickname,
-      user_type: "MEMBER",
-    });
-    localStorage.setItem("user_token", axiosres.data.user_token);
+      const axiosres = await axios.post("/api/user/", {
+        google_id: response.profileObj.googleId,
+        email: response.profileObj.email,
+        nickname: nickname,
+        user_type: "MEMBER",
+      });
+      localStorage.setItem("user_token", axiosres.data.user_token);
 
-    let user_token = localStorage.getItem("user_token");
-    let info = jwt_decode(user_token);
-    setUserInfo(info);
+      let user_token = localStorage.getItem("user_token");
+      let info = jwt_decode(user_token);
+      setUserInfo(info);
+    } catch (error) {
+      alert("에러가 발생했습니다. 시크릿모드를 비활성화 하세요.");
+    }
   };
 
   if (userInfo !== "") {
