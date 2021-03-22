@@ -17,7 +17,6 @@ import { faDesktop } from "@fortawesome/free-solid-svg-icons";
 import { faUsers } from "@fortawesome/free-solid-svg-icons";
 import { faDoorOpen } from "@fortawesome/free-solid-svg-icons";
 import { faLock } from "@fortawesome/free-solid-svg-icons";
-// import { faLockOpen } from "@fortawesome/free-solid-svg-icons"
 import { v4 as uuidv4 } from "uuid";
 
 const receivedPeerIds = new Set();
@@ -144,8 +143,7 @@ const Room = ({ location }) => {
           video: true,
           audio: true,
         });
-        myStream.muted = true;
-
+        // myStream.muted = true;
         videoRef.current.srcObject = myStream;
         videoRef.current.muted = true;
 
@@ -264,9 +262,16 @@ const Room = ({ location }) => {
   };
 
   const onShareMyScreen = async (e) => {
+    //화면공유의 audio는 그 사람 마이크가 아닌 윈도우 내의 sound이다
+    //그러므로 따로 getUserMedia를통해 audio를 가져온후 displayStream에 addTrack으로 추가
+    const myStreamAudio = await navigator.mediaDevices.getUserMedia({
+      audio: true,
+    });
+    const myAudioTrack = myStreamAudio.getAudioTracks()[0];
     const myScreenStream = await navigator.mediaDevices.getDisplayMedia(
       displayMediaOptions
     );
+    myScreenStream.addTrack(myAudioTrack);
 
     const room_data = await axios.get(`/api/chat/getroom/?uuid=${uuid}`);
     const peer_data = await axios.get(
